@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
+    "prestart": "cp ../dist/{service-worker.umd.js,service-worker.umd.js.map} public",
+    "prebuild": "cp ../dist/{service-worker.umd.js,service-worker.umd.js.map} public",
     "start": "node ../node_modules/react-scripts/bin/react-scripts.js start",
     "build": "node ../node_modules/react-scripts/bin/react-scripts.js build",
     "test": "node ../node_modules/react-scripts/bin/react-scripts.js test",
@@ -19,9 +21,10 @@
     "@types/react-dom": "file:../node_modules/@types/react-dom",
     "react": "file:../node_modules/react",
     "react-dom": "file:../node_modules/react-dom",
+    "react-esm-sandbox": "file:..",
     "react-scripts": "file:../node_modules/react-scripts",
     "typescript": "file:../node_modules/typescript",
-    "react-esm-sandbox": "file:.."
+    "uuid": "^8.3.0"
   },
   "devDependencies": {
     "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
