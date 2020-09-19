@@ -14,7 +14,7 @@
   "scripts": {
     "build": "bash build.sh",
     "prestart": "bash build.sh",
-    "start": "microbundle-crl -i src/index.tsx -o dist/index.js --no-compress --format modern,cjs",
+    "start": "microbundle-crl -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -63,6 +63,7 @@
     "dist"
   ],
   "dependencies": {
+    "promise-worker": "^2.0.1",
     "uuid": "^8.3.0"
   }
 }

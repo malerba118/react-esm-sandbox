@@ -1,18 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { v4 as uuid } from 'uuid'
-import styles from './styles.module.css'
-import { Messenger } from './utils/messenger'
-
-type SourceFiles = Record<string, SourceFile>
-
-type SourceFile = {
-  contents: string
-}
-
-enum InterpreterEventType {
-  FilesUpdated = 'FilesUpdated',
-  Unmounted = 'Unmounted'
-}
+import { Messenger } from './messenger'
+import { InterpreterEventType, SourceFiles } from './types'
 
 const createInterpreterEvent = <
   EventType extends InterpreterEventType,
@@ -25,18 +14,20 @@ const createInterpreterEvent = <
   return options
 }
 
-interface Props {
-  files: SourceFiles
-}
-
 const useConstant = <T extends any>(value: T): T => {
   return useRef(value).current
 }
 
 const messenger = Messenger()
 
-export const Interpreter = ({ files = {} }: Props) => {
+export interface InterpreterProps {
+  files: SourceFiles
+}
+
+export const Interpreter = ({ files = {} }: InterpreterProps) => {
   const interpreterId = useConstant(uuid())
+
+  console.log(interpreterId)
 
   useEffect(() => {
     messenger.then((worker) => {
@@ -55,5 +46,5 @@ export const Interpreter = ({ files = {} }: Props) => {
         })
     })
   }, [files])
-  return <div className={styles.test}>Example Component</div>
+  return <div>Example Component</div>
 }
