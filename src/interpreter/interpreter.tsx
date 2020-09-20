@@ -34,7 +34,7 @@ export const Interpreter = ({
       const event: FilesUpdatedEvent = {
         interpreterId,
         type: InterpreterEventType.FilesUpdated,
-        payload: files
+        payload: JSON.stringify(files)
       }
       worker
         .postMessage(event)

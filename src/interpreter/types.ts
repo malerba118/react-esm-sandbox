@@ -27,7 +27,7 @@ export type InterpreterEvent<
 
 export type FilesUpdatedEvent = InterpreterEvent<
   InterpreterEventType.FilesUpdated,
-  SourceFiles
+  string
 >
 
 export type UnmountedEvent = InterpreterEvent<

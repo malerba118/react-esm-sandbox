@@ -15,7 +15,18 @@ let interpreterTranspiledFiles: Record<string, Record<string, string>> = {}
 
 const transpile = (code: string) => {
   return Babel.transform(code, {
-    presets: [['typescript', { allExtensions: true }]]
+    presets: [
+      [
+        'env',
+        {
+          targets: '> 0.25%, not dead',
+          // no module transpilation to CJS (!important)
+          modules: false
+        }
+      ],
+      'react',
+      ['typescript', { allExtensions: true, isTSX: true }]
+    ]
   }).code
 }
 
@@ -43,6 +54,7 @@ const updateTranspiledFiles = (interpreterId: string, files: SourceFiles) => {
 }
 
 registerPromiseWorker(({ interpreterId, type, payload }: InterpreterEvent) => {
+  payload = JSON.parse(payload)
   if (type === InterpreterEventType.FilesUpdated) {
     updateTranspiledFiles(interpreterId, payload)
     interpreterSourceFiles[interpreterId] = payload
