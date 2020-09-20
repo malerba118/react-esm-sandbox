@@ -6,16 +6,19 @@ import {
 } from 'react-esm-sandbox/dist/interpreter'
 
 const files = {
-  'index.js': {
+  'index.ts': {
     contents: `
       import { add } from './add.js'; 
       import _ from 'lodash';
-      alert(Object.keys(_).join(', '));
+
+      const keys: string[] = Object.keys(_);
+
+      alert(keys.join(', '));
     `
   },
-  'add.js': {
+  'add.ts': {
     contents: `
-      export const add = (a, b) => { return a + b; };
+      export const add = (a: number, b: number): number => { return a + b; };
     `
   }
 }
@@ -26,7 +29,7 @@ const importMap = SkypackImportMap({
 
 const App = () => {
   return (
-    <Interpreter files={files} entrypoint='index.js' importMap={importMap} />
+    <Interpreter files={files} entrypoint='index.ts' importMap={importMap} />
   )
 }
 

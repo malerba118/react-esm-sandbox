@@ -41,8 +41,8 @@ export const Interpreter = ({
         .then(() => {
           setReady(true)
         })
-        .catch(() => {
-          console.log('OOPSSSS')
+        .catch((err) => {
+          console.log('OOPSSSS', err)
         })
     })
   }, [files])
