@@ -1,3 +1,10 @@
+export type ImportMap = {
+  imports: Record<string, string>
+  scopes?: Record<string, Record<string, string>>
+}
+
+export type Dependencies = Record<string, string>
+
 export type SourceFiles = Record<string, SourceFile>
 
 export type SourceFile = {

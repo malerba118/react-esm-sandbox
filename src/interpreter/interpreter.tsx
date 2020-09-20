@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuid } from 'uuid'
 import { Messenger } from './messenger'
-import { InterpreterEventType, SourceFiles, FilesUpdatedEvent } from './types'
+import { jsonToDataUrl } from './utils/url'
+import {
+  InterpreterEventType,
+  SourceFiles,
+  FilesUpdatedEvent,
+  ImportMap
+} from './types'
 
 const useConstant = <T extends any>(value: T): T => {
   return useRef(value).current
@@ -12,9 +18,14 @@ const messenger = Messenger()
 export interface InterpreterProps {
   files: SourceFiles
   entrypoint: string
+  importMap: ImportMap
 }
 
-export const Interpreter = ({ files = {}, entrypoint }: InterpreterProps) => {
+export const Interpreter = ({
+  files = {},
+  entrypoint,
+  importMap
+}: InterpreterProps) => {
   const interpreterId = useConstant(uuid())
   const [ready, setReady] = useState(false)
 
@@ -36,6 +47,8 @@ export const Interpreter = ({ files = {}, entrypoint }: InterpreterProps) => {
     })
   }, [files])
 
+  const importMapUrl = jsonToDataUrl(importMap)
+
   const doc = `
     <!DOCTYPE html>
     <html>
@@ -44,6 +57,7 @@ export const Interpreter = ({ files = {}, entrypoint }: InterpreterProps) => {
         </head>
         <body>
             <script defer src="https://cdn.jsdelivr.net/npm/es-module-shims@0.6.0/dist/es-module-shims.min.js"></script>
+            <script type="importmap-shim" src="${importMapUrl}"></script>
             <script type="module-shim" src="${interpreterId}/${entrypoint}"></script>
         </body>
     </html>
