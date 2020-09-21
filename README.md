@@ -4,25 +4,63 @@
 
 [![NPM](https://img.shields.io/npm/v/react-esm-sandbox.svg)](https://www.npmjs.com/package/react-esm-sandbox) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
-## Install
-
-```bash
-npm install --save react-esm-sandbox
-```
-
-## Usage
+This is a library for interpreting sets of interdependent es modules directly in the browser. It also supports tanspilation of typescript/jsx via babel-standalone. This currently only works in firefox. Chrome has yet to implement iframe service worker iheritance according to the [w3c spec](https://github.com/w3c/ServiceWorker/issues/765). This library is on hold until then.
 
 ```tsx
-import React, { Component } from 'react'
+import React from 'react'
+import {
+  Interpreter,
+  SkypackImportMap
+} from 'react-esm-sandbox/dist/interpreter'
 
-import MyComponent from 'react-esm-sandbox'
-import 'react-esm-sandbox/dist/index.css'
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register(
+      'react-esm-sandbox/dist/interpreter/service-worker.modern.js'
+    );
+  });
+}
 
-class Example extends Component {
-  render() {
-    return <MyComponent />
+const files = {
+  'index.tsx': {
+    contents: `
+      import React from 'react'; 
+      import ReactDOM from 'react-dom';
+      import { App } from './components/App.tsx';
+
+      ReactDOM.render(
+        <App />,
+        document.body
+      );
+    `
+  },
+  'components/App.tsx': {
+    contents: `
+      import React, { FC } from 'react'; 
+      import { Button } from '@material-ui/core';
+
+      export const App: FC = () => <Button>Hello World</Button>;
+    `
   }
 }
+
+const importMap = SkypackImportMap({
+  react: 'latest',
+  'react-dom': 'latest',
+  '@material-ui/core': 'latest'
+})
+
+const App = () => {
+  return (
+    <Interpreter 
+      entrypoint='index.tsx' 
+      files={files} 
+      importMap={importMap} 
+    />
+  )
+}
+
+export default App
 ```
 
 ## License
