@@ -6,24 +6,26 @@ import {
 } from 'react-esm-sandbox/dist/interpreter'
 
 const files = {
-  'index.tsx': {
+  'index.ts': {
     contents: `
-      import React from 'react'; 
-      import ReactDOM from 'react-dom';
-      import { App } from './components/App.tsx';
-
-      ReactDOM.render(
-        <App />,
-        document.body
-      );
+      import { add, subtract } from './math/index.js';
+      window.alert(subtract(add(40, 40), 20))
     `
   },
-  'components/App.tsx': {
+  'math/add.ts': {
     contents: `
-      import React, { FC } from 'react'; 
-      import { Button } from '@material-ui/core';
-
-      export const App: FC = () => <Button>Hello World</Button>;
+      export const add = (a: number, b: number) => a + b;
+    `
+  },
+  'math/subtract.ts': {
+    contents: `
+      export const subtract = (a: number, b: number) => a - b;
+    `
+  },
+  'math/index.js': {
+    contents: `
+      export * from './add.ts'
+      export * from './subtract.ts'
     `
   }
 }
@@ -36,7 +38,7 @@ const importMap = SkypackImportMap({
 
 const App = () => {
   return (
-    <Interpreter entrypoint='index.tsx' files={files} importMap={importMap} />
+    <Interpreter entrypoint='index.ts' files={files} importMap={importMap} />
   )
 }
 
