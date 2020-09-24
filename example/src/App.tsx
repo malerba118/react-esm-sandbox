@@ -5,30 +5,41 @@ import {
   SkypackImportMap
 } from 'react-esm-sandbox/dist/interpreter'
 
-const files = {
-  'index.ts': {
+const files = [
+  {
+    path: 'index.ts',
     contents: `
+      import React from 'react';
+      import ReactDOM from 'react-dom';
+      import { Typography } from '@material-ui/core';
       import { add, subtract } from './math/index.js';
-      window.alert(subtract(add(40, 40), 20))
+
+      ReactDOM.render(
+        <Typography>{subtract(add(40, 40), 20)}</Typography>, 
+        document.body
+      );
     `
   },
-  'math/add.ts': {
+  {
+    path: 'math/add.ts',
     contents: `
       export const add = (a: number, b: number) => a + b;
     `
   },
-  'math/subtract.ts': {
+  {
+    path: 'math/subtract.ts',
     contents: `
       export const subtract = (a: number, b: number) => a - b;
     `
   },
-  'math/index.js': {
+  {
+    path: 'math/index.js',
     contents: `
       export * from './add.ts'
       export * from './subtract.ts'
     `
   }
-}
+]
 
 const importMap = SkypackImportMap({
   react: 'latest',

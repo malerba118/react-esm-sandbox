@@ -4,8 +4,6 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "prestart": "cp ../dist/interpreter/{service-worker.modern.js,service-worker.modern.js.map} public",
-    "prebuild": "cp ../dist/interpreter/{service-worker.modern.js,service-worker.modern.js.map} public",
     "start": "node ../node_modules/react-scripts/bin/react-scripts.js start",
     "build": "node ../node_modules/react-scripts/bin/react-scripts.js build",
     "test": "node ../node_modules/react-scripts/bin/react-scripts.js test",

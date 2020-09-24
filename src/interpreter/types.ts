@@ -5,32 +5,12 @@ export type ImportMap = {
 
 export type Dependencies = Record<string, string>
 
-export type SourceFiles = Record<string, SourceFile>
-
 export type SourceFile = {
+  path: string
   contents: string
 }
 
-export enum InterpreterEventType {
-  FilesUpdated = 'FilesUpdated',
-  Unmounted = 'Unmounted'
+export type TranspiledFile = {
+  path: string
+  contents: string
 }
-
-export type InterpreterEvent<
-  EventType extends InterpreterEventType = InterpreterEventType,
-  Payload = any
-> = {
-  interpreterId: string
-  type: EventType
-  payload?: Payload
-}
-
-export type FilesUpdatedEvent = InterpreterEvent<
-  InterpreterEventType.FilesUpdated,
-  string
->
-
-export type UnmountedEvent = InterpreterEvent<
-  InterpreterEventType.Unmounted,
-  undefined
->
