@@ -1,2 +1,1 @@
-microbundle-crl -i src/interpreter/service-worker.ts -o dist/interpreter/service-worker.js --external none --format modern
-microbundle-crl watch -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs
+microbundle-crl -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs

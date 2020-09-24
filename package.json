@@ -13,8 +13,7 @@
   },
   "scripts": {
     "build": "bash build.sh",
-    "prestart": "bash build.sh",
-    "start": "microbundle-crl -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs",
+    "start": "microbundle-crl watch -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
