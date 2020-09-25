@@ -49,7 +49,13 @@ const importMap = SkypackImportMap({
 
 const App = () => {
   return (
-    <Interpreter entrypoint='index.ts' files={files} importMap={importMap} />
+    <Interpreter
+      onLoading={() => console.log('loading')}
+      onLoad={() => console.log('loaded')}
+      entrypoint='index.ts'
+      files={files}
+      importMap={importMap}
+    />
   )
 }
 
