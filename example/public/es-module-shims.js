@@ -5,6 +5,7 @@
   const resolvedPromise = Promise.resolve();
 
   let baseUrl;
+  let baseAlias;
 
   function createBlob (source) {
     return URL.createObjectURL(new Blob([source], { type: 'application/javascript' }));
@@ -264,7 +265,7 @@
   }
 
   async function importShim$1 (id, parentUrl) {
-    return topLevelLoad(resolve(id, parentUrl || baseUrl));
+    return topLevelLoad(resolve(id, parentUrl || baseUrl), undefined, baseAlias);
   }
 
   self.importShim = importShim$1;
@@ -275,8 +276,6 @@
 
   async function importMetaResolve (id, parentUrl = this.url) {
     await importMapPromise;
-    console.log({id, parentUrl})
-
     return resolve(id, `${parentUrl}`);
   }
 
@@ -425,13 +424,10 @@
     load.L = load.f.then(async deps => {
       load.d = await Promise.all(deps.map(async depId => {
         let url = load.alias || load.r || load.u
-
-        console.log({depId, url})
         const resolved = resolve(depId, url);
         if (importShim$1.skip.test(resolved))
           return { b: resolved };
         const depAlias = resolved.startsWith('data:') ? (new URL(depId, load.alias)).href : resolved
-        console.log({alias, resolved})
         const depLoad = getOrCreateLoad(resolved, undefined, depAlias);
         await depLoad.f;
         return depLoad;
@@ -458,8 +454,7 @@
       if (script.ep) // ep marker = script processed
         return;
       if (script.type === 'module-shim') {
-        const baseAlias = script.getAttribute('data-alias')
-        console.log({baseAlias})
+        baseAlias = script.getAttribute('data-alias')
         topLevelLoad(script.src || `${baseUrl}?${id++}`, !script.src && script.innerHTML, baseAlias);
       }
       else {
