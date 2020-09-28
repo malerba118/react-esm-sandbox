@@ -14,3 +14,19 @@ export type TranspiledFile = {
   path: string
   contents: string
 }
+
+export type Transform = (code: string) => string
+
+export type LogType =
+  | 'log'
+  | 'warn'
+  | 'error'
+  | 'info'
+  | 'debug'
+  | 'command'
+  | 'result'
+
+export type Log = {
+  type: LogType
+  data: any[]
+}

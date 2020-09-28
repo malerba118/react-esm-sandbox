@@ -1,48 +1,9 @@
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState, useMemo } from 'react'
 import { v4 as uuid } from 'uuid'
-import { jsonToDataUrl } from './utils/url'
+import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
-import { SourceFile, TranspiledFile, ImportMap } from './types'
-import Babel from '@babel/standalone'
-
-const transpile: Transform = (code: string) => {
-  return (
-    Babel.transform(code, {
-      presets: [
-        [
-          'env',
-          {
-            targets: '> 0.25%, not dead',
-            // no module transpilation to CJS (!important)
-            modules: false
-          }
-        ],
-        'react',
-        ['typescript', { allExtensions: true, isTSX: true }]
-      ]
-    }).code || ''
-  )
-}
-
-type Transform = (code: string) => string
-
-type LogType =
-  | 'log'
-  | 'warn'
-  | 'error'
-  | 'info'
-  | 'debug'
-  | 'command'
-  | 'result'
-
-type Log = {
-  type: LogType
-  data: any[]
-}
-
-const useConstant = <T extends any>(value: T): T => {
-  return useRef(value).current
-}
+import { useConstant } from './utils/hooks'
+import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
 
 export interface InterpreterProps {
   document?: string
@@ -53,32 +14,35 @@ export interface InterpreterProps {
   onLoad?: () => void
   onError?: (error: Error) => void
   onLog?: (log: Log) => void
+  transforms?: Record<string, Transform>
 }
 
 const importsFromFiles = (files: TranspiledFile[], baseUrl: string) => {
   const imports = {}
   files.forEach((file) => {
-    const url = new URL(file.path, baseUrl).href
-    imports[url] = `data:application/javascript;charset=utf-8;base64,${btoa(
+    const url = resolveUrl(baseUrl, file.path)
+    imports[
+      url
+    ] = `data:application/javascript;charset=utf-8,${encodeURIComponent(
       file.contents || ''
     )}`
   })
   return imports
 }
 
-type GetNextTranspiledFilesMapOptions = {
+type GetNextTranspiledFilesMapParams = {
   prevSourceFilesMap: Record<string, SourceFile>
   nextSourceFilesMap: Record<string, SourceFile>
   transpiledFilesMap: Record<string, TranspiledFile>
-  transform?: Transform
+  transforms: Record<string, Transform>
 }
 
 const getNextTranspiledFilesMap = ({
   prevSourceFilesMap,
   nextSourceFilesMap,
   transpiledFilesMap,
-  transform = transpile
-}: GetNextTranspiledFilesMapOptions) => {
+  transforms
+}: GetNextTranspiledFilesMapParams) => {
   const nextTranspiledFilesMap: Record<string, TranspiledFile> = {}
   Object.values(nextSourceFilesMap).forEach((nextSourceFile) => {
     const prevSourceFile = prevSourceFilesMap[nextSourceFile.path]
@@ -86,10 +50,13 @@ const getNextTranspiledFilesMap = ({
       !prevSourceFile ||
       prevSourceFile.contents !== nextSourceFile.contents
     ) {
+      const fileExtension = getFileExtension(nextSourceFile.path)
+      const transform = transforms[fileExtension]
       // transform and add to nextTranspiledFilesMap
       nextTranspiledFilesMap[nextSourceFile.path] = {
         path: nextSourceFile.path,
-        contents: transform(nextSourceFile.contents)
+        contents:
+          transform?.(nextSourceFile.contents) ?? nextSourceFile.contents
       }
     } else {
       // copy over old transpiled file to nextTranspiledFilesMap
@@ -98,6 +65,84 @@ const getNextTranspiledFilesMap = ({
     }
   })
   return nextTranspiledFilesMap
+}
+
+type BuildDocumentParams = {
+  interpreterId: string
+  inputDocument: string
+  baseUrl: string
+  importMapUrl: string
+  entrypointUrl: string
+}
+
+const buildDocument = ({
+  interpreterId,
+  inputDocument,
+  baseUrl,
+  importMapUrl,
+  entrypointUrl
+}: BuildDocumentParams): string => {
+  return (
+    `<script>
+  const postMessage = ({type, payload}) => {
+    window.parent.postMessage(
+      { 
+        interpreterId: '${interpreterId}',
+        type,
+        payload
+      }, 
+      '*'
+    )
+  }
+
+  const createConsoleProxy = (type, fn) => {
+    return (...args) => {
+      postMessage({
+        type: 'log',
+        payload: {
+          type,
+          data: args
+        }
+      })
+      fn(...args)
+    }
+  }
+
+  const _debug = console.debug,
+        _log = console.log,
+        _info = console.info,
+        _warn = console.warn,
+        _error = console.error
+
+  console.debug = createConsoleProxy('debug', _debug)
+  console.log = createConsoleProxy('log', _log)
+  console.info = createConsoleProxy('info', _info)
+  console.warn = createConsoleProxy('warn', _warn)
+  console.error = createConsoleProxy('error', _error)
+</script>` +
+    inputDocument +
+    `
+<script defer src="/es-module-shims.js"></script>
+<script type="importmap-shim" src="${importMapUrl}"></script>
+<script data-alias="${baseUrl}" type="module-shim">
+  postMessage({
+    type: 'loading',
+  })
+  import("${entrypointUrl}")
+      .then(() => {
+        postMessage({
+          type: 'loaded',
+        })
+      })
+      .catch((err) => {
+        postMessage({
+          type: 'error',
+          payload: err
+        })
+      })
+</script>
+`
+  )
 }
 
 const defaultDocument = `<!DOCTYPE html>
@@ -118,10 +163,11 @@ export const Interpreter = ({
   onLoading,
   onLoad,
   onError,
-  onLog
+  onLog,
+  transforms = {}
 }: InterpreterProps) => {
   const interpreterId = useConstant(uuid())
-  const baseUrl = new URL(entrypoint, window.location.href).href
+  const baseUrl = useConstant(resolveUrl(window.location.origin, entrypoint))
   const [transpiledFilesMap, setTranspiledFilesMap] = useState<
     Record<string, TranspiledFile>
   >({})
@@ -137,10 +183,7 @@ export const Interpreter = ({
         } else if (event.data.type === 'error') {
           onError?.(event.data.payload)
         } else if (event.data.type === 'log') {
-          onLog?.({
-            type: event.data.subtype,
-            data: event.data.payload
-          })
+          onLog?.(event.data.payload)
         }
       }
     }
@@ -153,60 +196,36 @@ export const Interpreter = ({
     const nextTranspiledFilesMap = getNextTranspiledFilesMap({
       prevSourceFilesMap: prevSourceFilesMapRef.current,
       nextSourceFilesMap,
-      transpiledFilesMap
+      transpiledFilesMap,
+      transforms
     })
     setTranspiledFilesMap(nextTranspiledFilesMap)
     prevSourceFilesMapRef.current = nextSourceFilesMap
   }, [files])
 
-  const _importMap = {
-    ...importMap,
-    imports: {
-      ...importMap.imports,
-      ...importsFromFiles(Object.values(transpiledFilesMap), baseUrl)
+  const _importMap = useMemo(() => {
+    return {
+      ...importMap,
+      imports: {
+        ...importMap.imports,
+        ...importsFromFiles(Object.values(transpiledFilesMap), baseUrl)
+      }
     }
-  }
+  }, [JSON.stringify(importMap), transpiledFilesMap, baseUrl])
 
-  const importMapUrl = jsonToDataUrl(_importMap)
+  const importMapUrl = useMemo(() => jsonToDataUrl(_importMap), [_importMap])
 
-  const resolvedEntrypoint = new URL(entrypoint, baseUrl).href
+  const entrypointUrl = _importMap.imports[baseUrl]
 
-  const doc =
-    document +
-    `
-    <script>
-    const postMessage = ({type, subtype, payload}) => {
-      window.parent.postMessage(
-        { 
-          interpreterId: '${interpreterId}',
-          type,
-          subtype,
-          payload
-        }, 
-        '*'
-      )
-    }
-    </script>
-    <script defer src="/es-module-shims.js"></script>
-    <script type="importmap-shim" src="${importMapUrl}"></script>
-    <script data-alias="${baseUrl}" type="module-shim">
-      postMessage({
-        type: 'loading',
-      })
-      import("${_importMap.imports[resolvedEntrypoint]}")
-          .then(() => {
-            postMessage({
-              type: 'loaded',
-            })
-          })
-          .catch((err) => {
-            postMessage({
-              type: 'error',
-              payload: err
-            })
-          })
-    </script>
-  `
+  const doc = useMemo(() => {
+    return buildDocument({
+      interpreterId,
+      inputDocument: document,
+      baseUrl,
+      entrypointUrl,
+      importMapUrl
+    })
+  }, [interpreterId, document, baseUrl, entrypointUrl, importMapUrl])
 
   if (Object.keys(transpiledFilesMap).length === 0) {
     return null

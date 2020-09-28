@@ -5,15 +5,15 @@
   "author": "malerba118",
   "license": "MIT",
   "repository": "malerba118/react-esm-sandbox",
-  "main": "dist/index.js",
-  "module": "dist/index.modern.js",
-  "source": "src/index.tsx",
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "build": "bash build.sh",
-    "start": "microbundle-crl watch -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs",
+    "prebuild": "rm -rf dist && node copy-package-json.js",
+    "build": "rollup -c && npm run declaration",
+    "declaration": "tsc -p tsconfig.declaration.json",
+    "prestart": "rm -rf dist && node copy-package-json.js && npm run declaration",
+    "start": "rollup -c -w",
     "prepare": "run-s build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
@@ -58,11 +58,11 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "^3.4.1",
+    "rollup": "^2.28.2",
+    "rollup-plugin-peer-deps-external": "^2.2.3",
+    "rollup-plugin-typescript2": "^0.27.3",
     "typescript": "^3.7.5"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@babel/standalone": "^7.11.6",
     "md5": "^2.3.0",
