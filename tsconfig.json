@@ -4,9 +4,10 @@
     "module": "esnext",
     "lib": ["dom", "esnext"],
     "moduleResolution": "node",
+    "resolveJsonModule": true,
     "jsx": "react",
     "sourceMap": true,
-    "declaration": true,
+    "declaration": false,
     "esModuleInterop": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
@@ -17,6 +18,6 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src"],
+  "include": ["src", "example/public/es-module-shims.js"],
   "exclude": ["node_modules", "dist", "example"]
 }

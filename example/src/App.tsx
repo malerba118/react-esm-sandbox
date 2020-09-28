@@ -1,9 +1,6 @@
 import React from 'react'
 
-import {
-  Interpreter,
-  SkypackImportMap
-} from 'react-esm-sandbox/dist/interpreter'
+import { Interpreter, SkypackImportMap } from 'react-esm-sandbox/interpreter'
 
 const files = [
   {
