@@ -1,17 +1,18 @@
 import React from 'react'
 
 import { Interpreter, SkypackImportMap } from 'react-esm-sandbox/interpreter'
+import { BabelTypescriptTransform } from 'react-esm-sandbox/transforms'
 
 const files = [
   {
-    path: 'index.js',
+    path: 'index.tsx',
     contents: `
       import React from 'react';
       import ReactDOM from 'react-dom';
       import { Typography } from '@material-ui/core';
       import { add, subtract } from './math/index.js';
 
-      console.log('testtt')
+      ReactDOM.render(<Typography>{add(50, subtract(20, 10))}</Typography>, document.body)
     `
   },
   {
@@ -41,15 +42,21 @@ const importMap = SkypackImportMap({
   '@material-ui/core': 'latest'
 })
 
+const transforms = {
+  tsx: BabelTypescriptTransform(),
+  ts: BabelTypescriptTransform()
+}
+
 const App = () => {
   return (
     <Interpreter
       onLoading={() => console.log('loading')}
       onLoad={() => console.log('loaded')}
-      entrypoint='index.js'
+      entrypoint='index.tsx'
       files={files}
       importMap={importMap}
-      onLog={(data) => window.alert(JSON.stringify(data))}
+      onLog={(data: any) => window.alert(JSON.stringify(data))}
+      transforms={transforms}
     />
   )
 }

@@ -1,10 +1,10 @@
-import Babel from '@babel/standalone'
+import { transform as transpile } from '@babel/standalone'
 import { Transform } from '../../interpreter'
 
 export const TypescriptTransform = () => {
   const transform: Transform = (code: string) => {
     return (
-      Babel.transform(code, {
+      transpile(code, {
         presets: [
           [
             'env',

@@ -1,20 +1,22 @@
 {
-  "name": "react-esm-sandbox",
+  "name": "react-esm-sandbox-test",
   "version": "1.0.0",
   "description": "ESM sandboxes",
   "author": "malerba118",
   "license": "MIT",
   "repository": "malerba118/react-esm-sandbox",
+  "private": true,
   "engines": {
     "node": ">=10"
   },
   "scripts": {
-    "prebuild": "rm -rf dist && node copy-package-json.js",
+    "clean": "rm -rf dist",
+    "prebuild": "node copy-package-json.js",
     "build": "rollup -c && npm run declaration",
     "declaration": "tsc -p tsconfig.declaration.json",
-    "prestart": "rm -rf dist && node copy-package-json.js && npm run declaration",
+    "prestart": "node copy-package-json.js && npm run declaration",
     "start": "rollup -c -w",
-    "prepare": "run-s build",
+    "prepare": "run-s clean build",
     "test": "run-s test:unit test:lint test:build",
     "test:build": "run-s build",
     "test:lint": "eslint .",
