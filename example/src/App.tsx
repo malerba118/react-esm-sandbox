@@ -6,9 +6,6 @@ import {
   SourceFile,
   BabelTypescriptTransform
 } from 'react-esm-sandbox'
-import 'codemirror/mode/javascript/javascript'
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/material.css'
 
 const importMap = SkypackImportMap({
   react: 'latest',
@@ -54,6 +51,7 @@ const App = () => {
       `
     }
   ])
+  const [active, setActive] = useState('index.tsx')
 
   const updateFile = (file: SourceFile) => {
     setFiles((prev) =>
@@ -68,7 +66,8 @@ const App = () => {
 
   return (
     <Playground
-      selectedFile='index.tsx'
+      active={active}
+      onActiveChange={setActive}
       onLoading={() => console.log('loading')}
       onLoad={() => console.log('loaded')}
       entrypoint='index.tsx'
@@ -76,7 +75,7 @@ const App = () => {
       importMap={importMap}
       onLog={(data: any) => window.alert(JSON.stringify(data))}
       transforms={transforms}
-      onChange={updateFile}
+      onFileChange={updateFile}
     />
   )
 }

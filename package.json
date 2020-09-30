@@ -27,7 +27,8 @@
   },
   "peerDependencies": {
     "react": "^16.0.0",
-    "react-codemirror2": "^7.0.0"
+    "react-codemirror2": "^7.0.0",
+    "codemirror": "^5.0.0"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^4.2.4",
