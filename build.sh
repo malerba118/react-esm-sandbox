@@ -1,1 +1,0 @@
-microbundle-crl -i src/interpreter/index.ts -o dist/interpreter/index.js --no-compress --format modern,cjs

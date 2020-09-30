@@ -1,39 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 
-import { Interpreter, SkypackImportMap } from 'react-esm-sandbox/interpreter'
-
-const files = [
-  {
-    path: 'index.js',
-    contents: `
-      import React from 'react';
-      import ReactDOM from 'react-dom';
-      import { Typography } from '@material-ui/core';
-      import { add, subtract } from './math/index.js';
-
-      console.log('testtt')
-    `
-  },
-  {
-    path: 'math/add.js',
-    contents: `
-      export const add = (a, b) => a + b;
-    `
-  },
-  {
-    path: 'math/subtract.js',
-    contents: `
-      export const subtract = (a, b) => a - b;
-    `
-  },
-  {
-    path: 'math/index.js',
-    contents: `
-      export * from './add.js'
-      export * from './subtract.js'
-    `
-  }
-]
+import {
+  Playground,
+  SkypackImportMap,
+  SourceFile,
+  BabelTypescriptTransform
+} from 'react-esm-sandbox'
 
 const importMap = SkypackImportMap({
   react: 'latest',
@@ -41,15 +13,69 @@ const importMap = SkypackImportMap({
   '@material-ui/core': 'latest'
 })
 
+const transforms = {
+  tsx: BabelTypescriptTransform(),
+  ts: BabelTypescriptTransform()
+}
+
 const App = () => {
+  const [files, setFiles] = useState([
+    {
+      path: 'index.tsx',
+      contents: `
+        import React from 'react';
+        import ReactDOM from 'react-dom';
+        import { Typography } from '@material-ui/core';
+        import { add, subtract } from './math/index.js';
+  
+        ReactDOM.render(<Typography>{add(50, subtract(20, 10))}</Typography>, document.body)
+      `
+    },
+    {
+      path: 'math/add.js',
+      contents: `
+        export const add = (a, b) => a + b;
+      `
+    },
+    {
+      path: 'math/subtract.js',
+      contents: `
+        export const subtract = (a, b) => a - b;
+      `
+    },
+    {
+      path: 'math/index.js',
+      contents: `
+        export * from './add.js'
+        export * from './subtract.js'
+      `
+    }
+  ])
+  const [active, setActive] = useState('index.tsx')
+
+  const updateFile = (file: SourceFile) => {
+    setFiles((prev) =>
+      prev.map((f) => {
+        if (f.path === file.path) {
+          return file
+        }
+        return f
+      })
+    )
+  }
+
   return (
-    <Interpreter
+    <Playground
+      active={active}
+      onActiveChange={setActive}
       onLoading={() => console.log('loading')}
       onLoad={() => console.log('loaded')}
-      entrypoint='index.js'
+      entrypoint='index.tsx'
       files={files}
       importMap={importMap}
-      onLog={(data) => window.alert(JSON.stringify(data))}
+      onLog={(data: any) => window.alert(JSON.stringify(data))}
+      transforms={transforms}
+      onFileChange={updateFile}
     />
   )
 }
