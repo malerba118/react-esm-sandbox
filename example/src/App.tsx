@@ -1,7 +1,10 @@
 import React from 'react'
 
-import { Interpreter, SkypackImportMap } from 'react-esm-sandbox/interpreter'
+import { Playground, SkypackImportMap } from 'react-esm-sandbox'
 import { BabelTypescriptTransform } from 'react-esm-sandbox/transforms'
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/material.css'
 
 const files = [
   {
@@ -49,7 +52,8 @@ const transforms = {
 
 const App = () => {
   return (
-    <Interpreter
+    <Playground
+      selectedFile='index.tsx'
       onLoading={() => console.log('loading')}
       onLoad={() => console.log('loaded')}
       entrypoint='index.tsx'
