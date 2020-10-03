@@ -4,22 +4,58 @@
         color: #EEFFFF;
     }
 
-    .header-overlay {
-        background: rgba(255,255,255,.08);
-    }
-
     .active-tab {
         background-color: #263238;
     }
 }
 
+.esm-sandbox-playground-dracula {
+    .header {
+        background-color: #282a36;
+        color: #f8f8f2;
+    }
+
+    .active-tab {
+        background-color: #282a36;
+    }
+}
+
 .esm-sandbox-playground {
-    display: flex;
-    flex-direction: column;
+
+    display: grid;
+    min-height: 400px;
+    height: 400px;
+    max-height: 400px;
+
+    &.column {
+        grid-template-columns: 50% 50%;
+    }
+
+    &.row {
+        grid-template-areas: "header interpreter"
+                            "editor  interpreter";
+        grid-template-rows: 2rem auto;
+        grid-template-columns: 50% 50%;
+    }
+
+    .editor {
+        grid-area: editor;
+        min-height: 100%;
+        min-width: 100%;
+    }
+
+    .interpreter-container {
+        grid-area: interpreter;
+    }
 
     .header {
         position: relative;
-        height: 32px;
+        height: 2rem;
+        grid-area: header;
+    }
+
+    .header-overlay {
+        background: rgba(255,255,255,.08);
     }
 
     .header-overlay {
@@ -30,11 +66,20 @@
         left: 0;
     }
 
+    .tabs {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        overflow-x: auto;
+        font-size: .88rem;
+    }
+
     .tab {
         border: none;
-        padding: 8px;
-        display: block;
+        height: 100%;
+        padding: 0px .5rem;
         color: inherit;
+        font: inherit;
         outline: none;
         cursor: pointer;
     }
@@ -47,5 +92,9 @@
     .active-tab {
         position: relative;
         z-index: 1;
+    }
+
+    .CodeMirror {
+        height: 100%;
     }
 }

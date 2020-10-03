@@ -4,17 +4,17 @@ import { Editor } from './editor'
 import debounce from 'lodash.debounce'
 import './playground.scss'
 
-const styles = {
-  tabs: {
-    display: 'flex'
-  }
-}
-
 export interface PlaygroundProps extends InterpreterProps {
   active: string | null
   onFileChange: (file: SourceFile) => void
   onActiveChange: (path: string) => void
-  theme: string
+  theme?: string
+  layout?: PlaygroundLayout
+}
+
+export enum PlaygroundLayout {
+  Horizontal = 'horizontal',
+  Vertical = 'vertical'
 }
 
 export const Playground = ({
@@ -30,7 +30,8 @@ export const Playground = ({
   transforms,
   active,
   onActiveChange,
-  theme
+  theme = 'dracula',
+  layout = PlaygroundLayout.Horizontal
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
 
@@ -46,7 +47,7 @@ export const Playground = ({
     }
   }
 
-  const requestInterpreterChange = useCallback(
+  const requestInterpreterUpdate = useCallback(
     debounce((files) => {
       setInterpreterFiles(files)
     }, 1000),
@@ -54,19 +55,20 @@ export const Playground = ({
   )
 
   useEffect(() => {
-    requestInterpreterChange(files)
+    requestInterpreterUpdate(files)
   }, [files])
 
   const rootClasses = [
     'esm-sandbox-playground',
-    'esm-sandbox-playground-' + theme
+    'esm-sandbox-playground-' + theme,
+    layout === PlaygroundLayout.Vertical ? 'column' : 'row'
   ]
 
   return (
     <div className={rootClasses.join(' ')}>
       <div className='header'>
         <div className='header-overlay'></div>
-        <div className='tabs' style={styles.tabs}>
+        <div className='tabs'>
           {files.map((file) => (
             <button
               key={file.path}
@@ -82,22 +84,25 @@ export const Playground = ({
         </div>
       </div>
       <Editor
+        className={'editor'}
         value={activeFile?.contents ?? ''}
         onChange={handleChange}
         theme={theme}
       />
-      <Interpreter
-        ref={interpreterRef}
-        document={document}
-        files={interpreterFiles}
-        entrypoint={entrypoint}
-        importMap={importMap}
-        onLoading={onLoading}
-        onLoad={onLoad}
-        onError={onError}
-        onLog={onLog}
-        transforms={transforms}
-      />
+      <div className='interpreter-container'>
+        <Interpreter
+          ref={interpreterRef}
+          document={document}
+          files={interpreterFiles}
+          entrypoint={entrypoint}
+          importMap={importMap}
+          onLoading={onLoading}
+          onLoad={onLoad}
+          onError={onError}
+          onLog={onLog}
+          transforms={transforms}
+        />
+      </div>
     </div>
   )
 }

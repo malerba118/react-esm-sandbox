@@ -76,7 +76,6 @@ export * from './subtract.ts'
       onLog={(data: any) => window.alert(JSON.stringify(data))}
       transforms={transforms}
       onFileChange={updateFile}
-      theme='material'
     />
   )
 }
