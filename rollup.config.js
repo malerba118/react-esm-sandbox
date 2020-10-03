@@ -1,5 +1,6 @@
 import typescript from 'rollup-plugin-typescript2'
 import external from 'rollup-plugin-peer-deps-external'
+import postcss from 'rollup-plugin-postcss';
 
 const createOutputConfig = (path) => [
   {
@@ -12,6 +13,11 @@ const createOutputConfig = (path) => [
 
 const plugins = [
   external(),
+  postcss({
+    extract: false,
+    modules: false,
+    use: ['sass'],
+  }),
   typescript({
     rollupCommonJSResolveHack: true,
     clean: true
