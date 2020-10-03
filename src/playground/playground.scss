@@ -1,0 +1,51 @@
+.esm-sandbox-playground-material {
+    .header {
+        background-color: #263238;
+        color: #EEFFFF;
+    }
+
+    .header-overlay {
+        background: rgba(255,255,255,.08);
+    }
+
+    .active-tab {
+        background-color: #263238;
+    }
+}
+
+.esm-sandbox-playground {
+    display: flex;
+    flex-direction: column;
+
+    .header {
+        position: relative;
+        height: 32px;
+    }
+
+    .header-overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+
+    .tab {
+        border: none;
+        padding: 8px;
+        display: block;
+        color: inherit;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .inactive-tab {
+        background: none;
+        z-index: 1;
+    }
+
+    .active-tab {
+        position: relative;
+        z-index: 1;
+    }
+}

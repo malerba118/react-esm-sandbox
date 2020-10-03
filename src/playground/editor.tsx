@@ -8,13 +8,14 @@ import 'codemirror/theme/material.css'
 interface EditorProps {
   value: string
   onChange: (val: string) => void
+  theme: string
 }
 
-export const Editor: FC<EditorProps> = ({ value, onChange }) => {
+export const Editor: FC<EditorProps> = ({ value, onChange, theme }) => {
   return (
     <Codemirror
       options={{
-        theme: 'material',
+        theme,
         mode: 'application/javascript'
       }}
       value={value}

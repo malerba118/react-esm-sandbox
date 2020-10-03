@@ -1,19 +1,12 @@
-import React from 'react'
+import React, { useRef, useCallback, useEffect, useState } from 'react'
 import { Interpreter, InterpreterProps, SourceFile } from '../interpreter'
 import { Editor } from './editor'
+import debounce from 'lodash.debounce'
+import './playground.scss'
 
 const styles = {
   tabs: {
     display: 'flex'
-  },
-  tab: {
-    border: 'none',
-    background: 'none',
-    padding: 4,
-    display: 'block'
-  },
-  activeTab: {
-    borderBottom: '4px solid #ccc'
   }
 }
 
@@ -21,6 +14,7 @@ export interface PlaygroundProps extends InterpreterProps {
   active: string | null
   onFileChange: (file: SourceFile) => void
   onActiveChange: (path: string) => void
+  theme: string
 }
 
 export const Playground = ({
@@ -35,9 +29,13 @@ export const Playground = ({
   onLog,
   transforms,
   active,
-  onActiveChange
+  onActiveChange,
+  theme
 }: PlaygroundProps) => {
+  const interpreterRef = useRef<any>(null)
+
   const activeFile = files.find((file) => file.path === active)
+  const [interpreterFiles, setInterpreterFiles] = useState(files)
 
   const handleChange = (value: string) => {
     if (activeFile) {
@@ -48,25 +46,50 @@ export const Playground = ({
     }
   }
 
+  const requestInterpreterChange = useCallback(
+    debounce((files) => {
+      setInterpreterFiles(files)
+    }, 1000),
+    []
+  )
+
+  useEffect(() => {
+    requestInterpreterChange(files)
+  }, [files])
+
+  const rootClasses = [
+    'esm-sandbox-playground',
+    'esm-sandbox-playground-' + theme
+  ]
+
   return (
-    <>
-      <div style={styles.tabs}>
-        {files.map((file) => (
-          <button
-            style={{
-              ...styles.tab,
-              ...(active === file.path ? styles.activeTab : {})
-            }}
-            onClick={() => onActiveChange(file.path)}
-          >
-            {file.path}
-          </button>
-        ))}
+    <div className={rootClasses.join(' ')}>
+      <div className='header'>
+        <div className='header-overlay'></div>
+        <div className='tabs' style={styles.tabs}>
+          {files.map((file) => (
+            <button
+              key={file.path}
+              className={[
+                'tab',
+                active === file.path ? 'active-tab' : 'inactive-tab'
+              ].join(' ')}
+              onClick={() => onActiveChange(file.path)}
+            >
+              {file.path}
+            </button>
+          ))}
+        </div>
       </div>
-      <Editor value={activeFile?.contents ?? ''} onChange={handleChange} />
+      <Editor
+        value={activeFile?.contents ?? ''}
+        onChange={handleChange}
+        theme={theme}
+      />
       <Interpreter
+        ref={interpreterRef}
         document={document}
-        files={files}
+        files={interpreterFiles}
         entrypoint={entrypoint}
         importMap={importMap}
         onLoading={onLoading}
@@ -75,6 +98,6 @@ export const Playground = ({
         onLog={onLog}
         transforms={transforms}
       />
-    </>
+    </div>
   )
 }

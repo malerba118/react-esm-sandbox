@@ -1,9 +1,18 @@
-import React, { useRef, useEffect, useState, useMemo } from 'react'
+import React, {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useImperativeHandle,
+  forwardRef
+} from 'react'
 import { v4 as uuid } from 'uuid'
 import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
 import { useConstant } from './utils/hooks'
 import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
+import './interpreter.scss'
 
 export interface InterpreterProps {
   document?: string
@@ -155,81 +164,114 @@ const defaultDocument = `<!DOCTYPE html>
     </body>
 </html>`
 
-export const Interpreter = ({
-  document = defaultDocument,
-  files = [],
-  entrypoint,
-  importMap,
-  onLoading,
-  onLoad,
-  onError,
-  onLog,
-  transforms = {}
-}: InterpreterProps) => {
-  const interpreterId = useConstant(uuid())
-  const baseUrl = useConstant(resolveUrl(window.location.origin, entrypoint))
-  const [transpiledFilesMap, setTranspiledFilesMap] = useState<
-    Record<string, TranspiledFile>
-  >({})
-  const prevSourceFilesMapRef = useRef<Record<string, SourceFile>>({})
+export const Interpreter = forwardRef(
+  (
+    {
+      document = defaultDocument,
+      files = [],
+      entrypoint,
+      importMap,
+      onLoading,
+      onLoad,
+      onError,
+      onLog,
+      transforms = {}
+    }: InterpreterProps,
+    ref
+  ) => {
+    const interpreterId = useConstant(uuid())
+    const baseUrl = useConstant(resolveUrl(window.location.origin, entrypoint))
+    const [transpiledFilesMap, setTranspiledFilesMap] = useState<
+      Record<string, TranspiledFile>
+    >({})
+    const prevSourceFilesMapRef = useRef<Record<string, SourceFile>>({})
+    const [key, setKey] = useState(0)
+    const inputRef = useRef(null)
 
-  useEffect(() => {
-    const listener = (event: MessageEvent) => {
-      if (event.data?.interpreterId === interpreterId) {
-        if (event.data.type === 'loading') {
-          onLoading?.()
-        } else if (event.data.type === 'loaded') {
-          onLoad?.()
-        } else if (event.data.type === 'error') {
-          onError?.(event.data.payload)
-        } else if (event.data.type === 'log') {
-          onLog?.(event.data.payload)
+    const incrementKey = useCallback(() => {
+      setKey((prev) => prev + 1)
+    }, [setKey])
+
+    useImperativeHandle(
+      ref,
+      () => ({
+        execute: () => {
+          incrementKey()
+        }
+      }),
+      [inputRef]
+    )
+
+    useEffect(() => {
+      const listener = (event: MessageEvent) => {
+        if (event.data?.interpreterId === interpreterId) {
+          if (event.data.type === 'loading') {
+            onLoading?.()
+          } else if (event.data.type === 'loaded') {
+            onLoad?.()
+          } else if (event.data.type === 'error') {
+            onError?.(event.data.payload)
+          } else if (event.data.type === 'log') {
+            onLog?.(event.data.payload)
+          }
         }
       }
-    }
-    window.addEventListener('message', listener)
-    return () => window.removeEventListener('message', listener)
-  }, [])
+      window.addEventListener('message', listener)
+      return () => window.removeEventListener('message', listener)
+    }, [])
 
-  useEffect(() => {
-    const nextSourceFilesMap = keyBy(files, 'path')
-    const nextTranspiledFilesMap = getNextTranspiledFilesMap({
-      prevSourceFilesMap: prevSourceFilesMapRef.current,
-      nextSourceFilesMap,
-      transpiledFilesMap,
-      transforms
-    })
-    setTranspiledFilesMap(nextTranspiledFilesMap)
-    prevSourceFilesMapRef.current = nextSourceFilesMap
-  }, [files])
-
-  const _importMap = useMemo(() => {
-    return {
-      ...importMap,
-      imports: {
-        ...importMap.imports,
-        ...importsFromFiles(Object.values(transpiledFilesMap), baseUrl)
+    useEffect(() => {
+      const nextSourceFilesMap = keyBy(files, 'path')
+      try {
+        const nextTranspiledFilesMap = getNextTranspiledFilesMap({
+          prevSourceFilesMap: prevSourceFilesMapRef.current,
+          nextSourceFilesMap,
+          transpiledFilesMap,
+          transforms
+        })
+        setTranspiledFilesMap(nextTranspiledFilesMap)
+        prevSourceFilesMapRef.current = nextSourceFilesMap
       }
+      catch(err) {
+        onError?.(err)
+      }
+    }, [files])
+
+    const _importMap = useMemo(() => {
+      return {
+        ...importMap,
+        imports: {
+          ...importMap.imports,
+          ...importsFromFiles(Object.values(transpiledFilesMap), baseUrl)
+        }
+      }
+    }, [JSON.stringify(importMap), transpiledFilesMap, baseUrl])
+
+    const importMapUrl = useMemo(() => jsonToDataUrl(_importMap), [_importMap])
+
+    const entrypointUrl = _importMap.imports[baseUrl]
+
+    const doc = useMemo(() => {
+      return buildDocument({
+        interpreterId,
+        inputDocument: document,
+        baseUrl,
+        entrypointUrl,
+        importMapUrl
+      })
+    }, [interpreterId, document, baseUrl, entrypointUrl, importMapUrl])
+
+    if (Object.keys(transpiledFilesMap).length === 0) {
+      return null
     }
-  }, [JSON.stringify(importMap), transpiledFilesMap, baseUrl])
 
-  const importMapUrl = useMemo(() => jsonToDataUrl(_importMap), [_importMap])
-
-  const entrypointUrl = _importMap.imports[baseUrl]
-
-  const doc = useMemo(() => {
-    return buildDocument({
-      interpreterId,
-      inputDocument: document,
-      baseUrl,
-      entrypointUrl,
-      importMapUrl
-    })
-  }, [interpreterId, document, baseUrl, entrypointUrl, importMapUrl])
-
-  if (Object.keys(transpiledFilesMap).length === 0) {
-    return null
+    return (
+      <iframe
+        ref={inputRef}
+        key={key}
+        className={'esm-sandbox-interpreter'}
+        srcDoc={doc}
+      />
+    )
   }
-
-  return <iframe srcDoc={doc} />
-}
+)
