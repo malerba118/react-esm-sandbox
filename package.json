@@ -42,6 +42,7 @@
     "@types/node": "^12.12.38",
     "@types/react": "^16.9.27",
     "@types/react-dom": "^16.9.7",
+    "@types/react-resize-detector": "^5.0.0",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
@@ -77,6 +78,7 @@
     "lodash.debounce": "^4.0.8",
     "md5": "^2.3.0",
     "promise-worker": "^2.0.1",
+    "react-resize-detector": "^5.2.0",
     "uuid": "^8.3.0"
   }
 }
