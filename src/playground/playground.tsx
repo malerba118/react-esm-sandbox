@@ -31,7 +31,7 @@ export const Playground = ({
   active,
   onActiveChange,
   theme = 'dracula',
-  layout = PlaygroundLayout.Horizontal
+  layout = PlaygroundLayout.Vertical
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
 

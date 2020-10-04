@@ -1,4 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import {
+  Box,
+  Stack,
+  Flex,
+  Heading,
+  Text,
+  Button,
+  useColorMode
+} from '@chakra-ui/core'
 
 import {
   Playground,
@@ -10,7 +19,8 @@ import {
 const importMap = SkypackImportMap({
   react: 'latest',
   'react-dom': 'latest',
-  '@material-ui/core': 'latest'
+  'framer-motion': 'latest',
+  'insert-css': 'latest'
 })
 
 const transforms = {
@@ -24,33 +34,66 @@ const App = () => {
       path: 'index.tsx',
       contents: `import React from 'react';
 import ReactDOM from 'react-dom';
-import { Typography } from '@material-ui/core';
-import { add, subtract } from './math/index.ts';
+import css from 'insert-css';
+import Animation from './Animation.tsx';
+
+css(\`
+  body {
+    height: 100vh;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  div {
+    background: #4caf5e;
+    border-radius: 30px;
+    width: 100px;
+    height: 100px;
+  }
+\`)
 
 ReactDOM.render(
-  <Typography>
-    {add(50, subtract(20, 10))}
-  </Typography>,
+  <Animation />,
   document.body
 )
 `
     },
     {
-      path: 'math/index.ts',
-      contents: `export * from './add.ts'
-export * from './subtract.ts'
+      path: 'Animation.tsx',
+      contents: `import React from 'react'
+import { motion } from 'framer-motion';
+
+const Animation = () => {
+  return (
+    <motion.div
+      animate={{
+        scale: [1, 2, 2, 1, 1],
+        rotate: [0, 0, 270, 270, 0],
+        borderRadius: ["20%", "20%", "50%", "50%", "20%"]
+      }}
+      transition={{
+        duration: 2,
+        ease: "easeInOut",
+        times: [0, 0.2, 0.5, 0.8, 1],
+        loop: Infinity,
+        repeatDelay: 1
+      }}
+    />
+  );
+};
+
+export default Animation;
 `
-    },
-    {
-      path: 'math/add.ts',
-      contents: `export const add = (a: number, b: number) => a + b;`
-    },
-    {
-      path: 'math/subtract.ts',
-      contents: `export const subtract = (a: number, b: number) => a - b;`
     }
   ])
   const [active, setActive] = useState('index.tsx')
+  const { setColorMode } = useColorMode()
+
+  useEffect(() => {
+    setColorMode('dark')
+  }, [setColorMode])
 
   const updateFile = (file: SourceFile) => {
     setFiles((prev) =>
@@ -64,19 +107,40 @@ export * from './subtract.ts'
   }
 
   return (
-    <Playground
-      active={active}
-      onActiveChange={setActive}
-      onLoading={() => console.log('loading')}
-      onLoad={() => console.log('loaded')}
-      onError={console.error}
-      entrypoint='index.tsx'
-      files={files}
-      importMap={importMap}
-      onLog={(data: any) => window.alert(JSON.stringify(data))}
-      transforms={transforms}
-      onFileChange={updateFile}
-    />
+    <Flex direction='column' h='100vh'>
+      <Box
+        h='64px'
+        bg='gray.800'
+        borderBottom={1}
+        borderBottomStyle='solid'
+        borderBottomColor='whiteAlpha.200'
+      ></Box>
+      <Box position='relative' flex={1} mr='50%' overflow='auto' p='12'>
+        <Stack spacing={4}>
+          <Heading size='lg'>React ESM Sandbox Demo</Heading>
+          <Text size='sm'>
+            react-esm-sandbox makes it super easy to bundle, transpile, and
+            interpret es modules directly in the browser
+          </Text>
+          <Button>IDK</Button>
+        </Stack>
+        <Box position='fixed' top='64px' w='50%' right={0} bottom={0}>
+          <Playground
+            active={active}
+            onActiveChange={setActive}
+            onLoading={() => console.log('loading')}
+            onLoad={() => console.log('loaded')}
+            onError={console.error}
+            entrypoint='index.tsx'
+            files={files}
+            importMap={importMap}
+            onLog={(data: any) => window.alert(JSON.stringify(data))}
+            transforms={transforms}
+            onFileChange={updateFile}
+          />
+        </Box>
+      </Box>
+    </Flex>
   )
 }
 

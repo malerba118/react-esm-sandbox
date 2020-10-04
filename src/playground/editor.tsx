@@ -33,7 +33,8 @@ export const Editor: FC<EditorProps> = ({
         mode: {
           name: 'jsx',
           base: { name: 'javascript', typescript: true }
-        }
+        },
+        lineNumbers: true
       }}
       value={value}
       onBeforeChange={(_, __, val) => onChange(val)}
