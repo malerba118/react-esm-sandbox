@@ -1,10 +1,12 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react'
-import { Interpreter, InterpreterProps, SourceFile } from '../interpreter'
+import { SourceFile } from '../interpreter'
+import { Sandbox, SandboxProps } from '../sandbox'
+
 import { Editor } from './editor'
 import debounce from 'lodash.debounce'
 import './playground.scss'
 
-export interface PlaygroundProps extends InterpreterProps {
+export interface PlaygroundProps extends SandboxProps {
   active: string | null
   onFileChange: (file: SourceFile) => void
   onActiveChange: (path: string) => void
@@ -90,7 +92,7 @@ export const Playground = ({
         theme={theme}
       />
       <div className='interpreter-container'>
-        <Interpreter
+        <Sandbox
           ref={interpreterRef}
           document={document}
           files={interpreterFiles}

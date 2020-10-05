@@ -33,6 +33,14 @@ export default [{
   output: createOutputConfig('dist/interpreter/index.js'),
   plugins
 },{
+  input: 'src/sandbox/index.ts',
+  output: createOutputConfig('dist/sandbox/index.js'),
+  plugins
+},{
+  input: 'src/playground/index.ts',
+  output: createOutputConfig('dist/playground/index.js'),
+  plugins
+},{
   input: 'src/transforms/index.ts',
   output: createOutputConfig('dist/transforms/index.js'),
   plugins
