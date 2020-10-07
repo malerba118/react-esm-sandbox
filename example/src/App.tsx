@@ -37,6 +37,11 @@ import ReactDOM from 'react-dom';
 import css from 'insert-css';
 import Animation from './Animation.tsx';
 
+console.error({
+  foo: 1,
+  bar: [0, 3, 5]
+});
+
 css(\`
   body {
     height: 100vh;

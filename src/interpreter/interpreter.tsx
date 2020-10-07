@@ -13,7 +13,7 @@ import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
 import { useConstant } from './utils/hooks'
 import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
-import './interpreter.scss'
+import classes from './interpreter.module.css'
 
 export interface InterpreterProps {
   doc?: string
@@ -267,15 +267,13 @@ export const Interpreter = forwardRef(
       return null
     }
 
-    const classes = {
-      root: classnames('esm-sandbox-interpreter', className)
-    }
+    const rootClasses = classnames(classes.root, className)
 
     return (
       <iframe
         ref={inputRef}
         key={key}
-        className={classes.root}
+        className={rootClasses}
         srcDoc={builtDoc}
       />
     )

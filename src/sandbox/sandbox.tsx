@@ -2,7 +2,8 @@ import React, { useState, forwardRef, ComponentType, FC } from 'react'
 import { Interpreter, InterpreterProps, Log } from '../interpreter'
 import { Spinner } from './spinner'
 import { Console } from './console'
-import './sandbox.scss'
+import { MdClose } from 'react-icons/md'
+import classes from './sandbox.module.css'
 
 enum Status {
   Loading = 'loading',
@@ -27,30 +28,17 @@ export interface SandboxProps extends InterpreterProps {
 
 const DefaultLoadingComponent: FC<{}> = () => {
   return (
-    <div className='default-loading'>
+    <div className={classes.loadingContainer}>
       <Spinner />
     </div>
   )
 }
 
-const CloseIcon = () => {
-  return (
-    <svg
-      xmlns='http://www.w3.org/2000/svg'
-      width='18'
-      height='18'
-      viewBox='0 0 18 18'
-    >
-      <path d='M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z' />
-    </svg>
-  )
-}
-
 const DefaultErrorComponent: FC<ErrorComponentProps> = ({ error, onClose }) => {
   return (
-    <div className='default-error'>
-      <button className='close-button' onClick={onClose}>
-        <CloseIcon />
+    <div className={classes.errorContainer}>
+      <button className={classes.closeButton} onClick={onClose}>
+        <MdClose />
       </button>
       <pre>{error.message}</pre>
     </div>
@@ -95,7 +83,7 @@ export const Sandbox = forwardRef(
     }
 
     return (
-      <div className='esm-sandbox-sandbox'>
+      <div className={classes.root}>
         <Interpreter
           ref={ref}
           {...otherProps}
@@ -103,15 +91,16 @@ export const Sandbox = forwardRef(
           onLoading={handleLoading}
           onLoad={handleLoad}
           onError={handleError}
+          className={classes.interpreter}
         />
         <Console open={consoleOpen} onToggle={setConsoleOpen} logs={logs} />
         {status === Status.Loading && (
-          <div className='overlay'>
+          <div className={classes.overlay}>
             <LoadingComponent />
           </div>
         )}
         {status === Status.Errored && error && (
-          <div className='overlay'>
+          <div className={classes.overlay}>
             <ErrorComponent
               error={error}
               onClose={() => {

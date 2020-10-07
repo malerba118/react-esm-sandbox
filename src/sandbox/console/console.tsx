@@ -31,7 +31,11 @@ export const Console: FC<ConsoleProps> = ({
         <button onClick={() => onToggle?.(!open)}>Toggle</button>
       </div>
       <div className={classes.content}>
-        <ConsoleFeed logs={logs as any} variant={variant} />
+        <ConsoleFeed
+          styles={{ BASE_BACKGROUND_COLOR: 'none' }}
+          logs={logs as any}
+          variant={variant}
+        />
       </div>
     </div>
   )
