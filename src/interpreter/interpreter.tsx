@@ -8,6 +8,7 @@ import React, {
   forwardRef
 } from 'react'
 import { v4 as uuid } from 'uuid'
+import classnames from 'classnames'
 import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
 import { useConstant } from './utils/hooks'
@@ -15,7 +16,7 @@ import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
 import './interpreter.scss'
 
 export interface InterpreterProps {
-  document?: string
+  doc?: string
   files: SourceFile[]
   entrypoint: string
   importMap: ImportMap
@@ -24,6 +25,7 @@ export interface InterpreterProps {
   onError?: (error: Error) => void
   onLog?: (log: Log) => void
   transforms?: Record<string, Transform>
+  className?: string
 }
 
 const importsFromFiles = (files: TranspiledFile[], baseUrl: string) => {
@@ -104,12 +106,12 @@ const buildDocument = ({
     )
   }
 
-  const createConsoleProxy = (type, fn) => {
+  const createConsoleProxy = (method, fn) => {
     return (...args) => {
       postMessage({
         type: 'log',
         payload: {
-          type,
+          method,
           data: args
         }
       })
@@ -167,7 +169,7 @@ const defaultDocument = `<!DOCTYPE html>
 export const Interpreter = forwardRef(
   (
     {
-      document = defaultDocument,
+      doc = defaultDocument,
       files = [],
       entrypoint,
       importMap,
@@ -175,6 +177,7 @@ export const Interpreter = forwardRef(
       onLoad,
       onError,
       onLog,
+      className,
       transforms = {}
     }: InterpreterProps,
     ref
@@ -231,8 +234,7 @@ export const Interpreter = forwardRef(
         })
         setTranspiledFilesMap(nextTranspiledFilesMap)
         prevSourceFilesMapRef.current = nextSourceFilesMap
-      }
-      catch(err) {
+      } catch (err) {
         onError?.(err)
       }
     }, [files])
@@ -251,26 +253,30 @@ export const Interpreter = forwardRef(
 
     const entrypointUrl = _importMap.imports[baseUrl]
 
-    const doc = useMemo(() => {
+    const builtDoc = useMemo(() => {
       return buildDocument({
         interpreterId,
-        inputDocument: document,
+        inputDocument: doc,
         baseUrl,
         entrypointUrl,
         importMapUrl
       })
-    }, [interpreterId, document, baseUrl, entrypointUrl, importMapUrl])
+    }, [interpreterId, doc, baseUrl, entrypointUrl, importMapUrl])
 
     if (Object.keys(transpiledFilesMap).length === 0) {
       return null
+    }
+
+    const classes = {
+      root: classnames('esm-sandbox-interpreter', className)
     }
 
     return (
       <iframe
         ref={inputRef}
         key={key}
-        className={'esm-sandbox-interpreter'}
-        srcDoc={doc}
+        className={classes.root}
+        srcDoc={builtDoc}
       />
     )
   }

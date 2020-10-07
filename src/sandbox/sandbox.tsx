@@ -1,6 +1,7 @@
 import React, { useState, forwardRef, ComponentType, FC } from 'react'
-import { Interpreter, InterpreterProps } from '../interpreter'
+import { Interpreter, InterpreterProps, Log } from '../interpreter'
 import { Spinner } from './spinner'
+import { Console } from './console'
 import './sandbox.scss'
 
 enum Status {
@@ -68,6 +69,12 @@ export const Sandbox = forwardRef(
   ) => {
     const [status, setStatus] = useState(Status.Loading)
     const [error, setError] = useState<Error | null>(null)
+    const [logs, setLogs] = useState<Log[]>([])
+    const [consoleOpen, setConsoleOpen] = useState<boolean>(false)
+
+    const pushLog = (log: Log) => {
+      setLogs((prev) => [...prev, log])
+    }
 
     const { loading: LoadingComponent, error: ErrorComponent } = {
       ...defaultComponents,
@@ -92,10 +99,12 @@ export const Sandbox = forwardRef(
         <Interpreter
           ref={ref}
           {...otherProps}
+          onLog={pushLog}
           onLoading={handleLoading}
           onLoad={handleLoad}
           onError={handleError}
         />
+        <Console open={consoleOpen} onToggle={setConsoleOpen} logs={logs} />
         {status === Status.Loading && (
           <div className='overlay'>
             <LoadingComponent />

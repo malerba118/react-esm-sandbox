@@ -35,6 +35,7 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "@types/babel__standalone": "^7.1.2",
+    "@types/classnames": "^2.2.10",
     "@types/codemirror": "0.0.98",
     "@types/jest": "^25.1.4",
     "@types/lodash.debounce": "^4.0.6",
@@ -75,6 +76,8 @@
   },
   "dependencies": {
     "@babel/standalone": "^7.11.6",
+    "@chakra-ui/icons": "^1.0.0-next.3",
+    "classnames": "^2.2.6",
     "console-feed": "^3.1.0",
     "lodash.debounce": "^4.0.8",
     "md5": "^2.3.0",

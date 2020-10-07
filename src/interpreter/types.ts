@@ -27,6 +27,6 @@ export type LogType =
   | 'result'
 
 export type Log = {
-  type: LogType
+  method: LogType
   data: any[]
 }

@@ -1,10 +1,17 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react'
+import React, {
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+  useLayoutEffect
+} from 'react'
+import classnames from 'classnames'
 import { SourceFile } from '../interpreter'
 import { Sandbox, SandboxProps } from '../sandbox'
 
 import { Editor } from './editor'
 import debounce from 'lodash.debounce'
-import './playground.scss'
+import classes from './playground.module.css'
 
 export interface PlaygroundProps extends SandboxProps {
   active: string | null
@@ -20,7 +27,7 @@ export enum PlaygroundLayout {
 }
 
 export const Playground = ({
-  document,
+  doc,
   files,
   onFileChange,
   entrypoint,
@@ -56,28 +63,35 @@ export const Playground = ({
     []
   )
 
+  useLayoutEffect(() => {
+    document.documentElement.style.setProperty(
+      '--esm-sandbox-background-color',
+      'green'
+    )
+    document.documentElement.style.setProperty('--esm-sandbox-color', 'purple')
+  }, [theme])
+
   useEffect(() => {
     requestInterpreterUpdate(files)
   }, [files])
 
-  const rootClasses = [
-    'esm-sandbox-playground',
-    'esm-sandbox-playground-' + theme,
-    layout === PlaygroundLayout.Vertical ? 'column' : 'row'
-  ]
+  const rootClasses = classnames(
+    classes.root,
+    layout === PlaygroundLayout.Vertical ? classes.column : classes.row
+  )
 
   return (
-    <div className={rootClasses.join(' ')}>
-      <div className='header'>
-        <div className='header-overlay'></div>
-        <div className='tabs'>
+    <div className={rootClasses}>
+      <div className={classes.header}>
+        <div className={classes.headerOverlay}></div>
+        <div className={classes.tabs}>
           {files.map((file) => (
             <button
               key={file.path}
-              className={[
-                'tab',
-                active === file.path ? 'active-tab' : 'inactive-tab'
-              ].join(' ')}
+              className={classnames(
+                classes.tab,
+                active === file.path ? classes.activeTab : classes.inactiveTab
+              )}
               onClick={() => onActiveChange(file.path)}
             >
               {file.path}
@@ -86,15 +100,15 @@ export const Playground = ({
         </div>
       </div>
       <Editor
-        className={'editor'}
+        className={classes.editor}
         value={activeFile?.contents ?? ''}
         onChange={handleChange}
         theme={theme}
       />
-      <div className='interpreter-container'>
+      <div className={classes.interpreterContainer}>
         <Sandbox
           ref={interpreterRef}
-          document={document}
+          doc={doc}
           files={interpreterFiles}
           entrypoint={entrypoint}
           importMap={importMap}
