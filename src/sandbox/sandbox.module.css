@@ -4,6 +4,8 @@
     min-height: 200px;
     position: relative;
     font-size: .9rem;
+    display: flex;
+    flex-direction: column;
 }
 
 .overlay {
@@ -48,4 +50,13 @@
     height: 100%;
     display: grid;
     place-items: center;
+}
+
+.interpreter {
+    flex: 1;
+}
+
+.interpreter button {
+    height: 1.5rem;
+    width: 1.5rem;
 }

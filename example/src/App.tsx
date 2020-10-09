@@ -36,6 +36,7 @@ const App = () => {
 import ReactDOM from 'react-dom';
 import css from 'insert-css';
 import Animation from './Animation.tsx';
+import useInterval from './hooks/useInterval.ts';
 
 console.error({
   foo: 1,
@@ -59,8 +60,16 @@ css(\`
   }
 \`)
 
+const App = () => {
+  useInterval(() => {
+    console.log({ timestamp: Date.now() })
+  }, 1000)
+
+  return <Animation />
+}
+
 ReactDOM.render(
-  <Animation />,
+  <App />,
   document.body
 )
 `
@@ -91,6 +100,29 @@ const Animation = () => {
 
 export default Animation;
 `
+    },
+    {
+      path: 'hooks/useInterval.ts',
+      contents: `import React from 'react';
+
+export default function useInterval(callback, delay) {
+  const intervalId = React.useRef(null);
+  const savedCallback = React.useRef(callback);
+
+  React.useEffect(() => {
+    savedCallback.current = callback;
+  });
+
+  React.useEffect(() => {
+    const tick = () => savedCallback.current();
+    if (typeof delay === 'number') {
+      intervalId.current = window.setInterval(tick, delay);
+      return () => window.clearInterval(intervalId.current);
+    }
+  }, [delay]);
+
+  return intervalId.current;
+};`
     }
   ])
   const [active, setActive] = useState('index.tsx')
@@ -142,6 +174,7 @@ export default Animation;
             onLog={(data: any) => window.alert(JSON.stringify(data))}
             transforms={transforms}
             onFileChange={updateFile}
+            theme='dracula'
           />
         </Box>
       </Box>

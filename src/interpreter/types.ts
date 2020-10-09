@@ -17,16 +17,16 @@ export type TranspiledFile = {
 
 export type Transform = (code: string) => string
 
-export type LogType =
+export type LogMethod =
   | 'log'
+  | 'debug'
+  | 'info'
   | 'warn'
   | 'error'
-  | 'info'
-  | 'debug'
-  | 'command'
-  | 'result'
+  | 'table'
+  | 'assert'
 
 export type Log = {
-  method: LogType
-  data: any[]
+  method: LogMethod
+  data?: any[]
 }

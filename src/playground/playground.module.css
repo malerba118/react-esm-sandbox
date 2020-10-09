@@ -65,7 +65,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: rgba(255,255,255,.04);
+    background: var(--esm-sandbox-overlay-color)
 }
 
 .tabs {
@@ -77,13 +77,9 @@
 }
 
 .tab {
-    border: none;
+    composes: button from '../global.css';
     height: 100%;
     padding: 0px .5rem;
-    color: inherit;
-    font: inherit;
-    outline: none;
-    cursor: pointer;
 }
 
 .activeTab {

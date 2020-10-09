@@ -24,6 +24,7 @@ export interface SandboxProps extends InterpreterProps {
     loading?: LoadingComponent
     error?: ErrorComponent
   }
+  variant?: 'light' | 'dark'
 }
 
 const DefaultLoadingComponent: FC<{}> = () => {
@@ -52,7 +53,14 @@ const defaultComponents = {
 
 export const Sandbox = forwardRef(
   (
-    { onLoading, onLoad, onError, components, ...otherProps }: SandboxProps,
+    {
+      onLoading,
+      onLoad,
+      onError,
+      components,
+      variant = 'dark',
+      ...otherProps
+    }: SandboxProps,
     ref
   ) => {
     const [status, setStatus] = useState(Status.Loading)
@@ -71,15 +79,18 @@ export const Sandbox = forwardRef(
 
     const handleLoading = () => {
       setStatus(Status.Loading)
+      onLoading?.()
     }
 
     const handleLoad = () => {
       setStatus(Status.Loaded)
+      onLoad?.()
     }
 
     const handleError = (error: Error) => {
       setStatus(Status.Errored)
       setError(error)
+      onError?.(error)
     }
 
     return (
@@ -93,7 +104,12 @@ export const Sandbox = forwardRef(
           onError={handleError}
           className={classes.interpreter}
         />
-        <Console open={consoleOpen} onToggle={setConsoleOpen} logs={logs} />
+        <Console
+          open={consoleOpen}
+          onToggle={setConsoleOpen}
+          logs={logs}
+          variant={variant}
+        />
         {status === Status.Loading && (
           <div className={classes.overlay}>
             <LoadingComponent />

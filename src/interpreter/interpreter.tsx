@@ -13,6 +13,7 @@ import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
 import { useConstant } from './utils/hooks'
 import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
+import '../global.css'
 import classes from './interpreter.module.css'
 
 export interface InterpreterProps {

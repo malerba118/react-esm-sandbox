@@ -8,8 +8,8 @@ import React, {
 import classnames from 'classnames'
 import { SourceFile } from '../interpreter'
 import { Sandbox, SandboxProps } from '../sandbox'
-
 import { Editor } from './editor'
+import { getThemeColors, isDark } from './colors'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
@@ -63,13 +63,26 @@ export const Playground = ({
     []
   )
 
+  const { background, foreground } = getThemeColors(theme)
+
   useLayoutEffect(() => {
     document.documentElement.style.setProperty(
       '--esm-sandbox-background-color',
-      'green'
+      background
     )
-    document.documentElement.style.setProperty('--esm-sandbox-color', 'purple')
-  }, [theme])
+    document.documentElement.style.setProperty(
+      '--esm-sandbox-color',
+      foreground
+    )
+    document.documentElement.style.setProperty(
+      '--esm-sandbox-overlay-color',
+      isDark(background) ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'
+    )
+    document.documentElement.style.setProperty(
+      '--esm-sandbox-focus-color',
+      isDark(background) ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)'
+    )
+  }, [background, foreground])
 
   useEffect(() => {
     requestInterpreterUpdate(files)
@@ -117,6 +130,7 @@ export const Playground = ({
           onError={onError}
           onLog={onLog}
           transforms={transforms}
+          variant={isDark(background) ? 'dark' : 'light'}
         />
       </div>
     </div>

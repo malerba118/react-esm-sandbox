@@ -11,6 +11,9 @@ const customTheme = extendTheme({
     useSystemColorMode: false,
     initialColorMode: 'dark'
   },
+  fonts: {
+    body: `"Fira Code", system-ui, sans-serif`
+  },
   colors: {
     gray: {
       50: '#eef4f9',

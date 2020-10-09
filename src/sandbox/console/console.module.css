@@ -11,12 +11,17 @@
     transition: height .22s ease;
 }
 
+.headerPlaceholder {
+    height: 1.5rem;
+    position: relative;
+}
+
 .dark {
-    background-color: rgb(36, 36, 36);
+    background-color: var(--esm-sandbox-background-color, rgb(36, 36, 36));
 }
 
 .light {
-    background-color: white;
+    background-color: var(--esm-sandbox-background-color, white);
 }
 
 .open {
@@ -24,15 +29,39 @@
 }
 
 .closed {
-    height: 24px;
+    height: 1.5rem;
 }
 
 .header {
-    height: 24px;
-    background: pink;
+    display: flex;
+    background-color:rgba(255,255,255,.05);
+    color: var(--esm-sandbox-color, rgb(36, 36, 36));
+    align-items: center;
+    height: 1.5rem;
 }
 
 .content {
     flex: 1;
     overflow: auto;
+}
+
+.toggleButton {
+    composes: button from '../../global.css';
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    padding: 0 .5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.icons {
+    display: flex;
+    align-items: center;
+}
+
+.clearButton {
+    height: 1.5rem;
+    padding: 0 .5rem;
 }
