@@ -93,6 +93,10 @@ export const Sandbox = forwardRef(
       onError?.(error)
     }
 
+    const clearConsole = () => {
+      setLogs([])
+    }
+
     return (
       <div className={classes.root}>
         <Interpreter
@@ -107,6 +111,7 @@ export const Sandbox = forwardRef(
         <Console
           open={consoleOpen}
           onToggle={setConsoleOpen}
+          onClear={clearConsole}
           logs={logs}
           variant={variant}
         />

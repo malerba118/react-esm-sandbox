@@ -3,8 +3,8 @@ import classnames from 'classnames'
 import { Log } from '../../interpreter'
 import { Console as ConsoleFeed } from 'console-feed'
 import {
-  MdKeyboardArrowUp as ExpandIcon,
-  MdKeyboardArrowDown as CollapseIcon,
+  MdExpandLess as ExpandIcon,
+  MdExpandMore as CollapseIcon,
   MdDoNotDisturb as ClearIcon
 } from 'react-icons/md'
 
@@ -41,6 +41,9 @@ export const Console: FC<ConsoleProps> = ({
     variant === 'dark' ? classes.dark : classes.light,
     className
   )
+
+  const consoleFeedClasses = classnames(classes.content, !open && classes.hide)
+
   return (
     <>
       <div className={classes.headerPlaceholder}></div>
@@ -49,22 +52,29 @@ export const Console: FC<ConsoleProps> = ({
           <button
             className={classes.toggleButton}
             onClick={() => onToggle?.(!open)}
+            title='Toggle Console'
+            aria-label='Toggle Console'
           >
-            <span>Console</span>
+            <span className={classes.label}>Console</span>
             <div className={classes.icons}>
               <button
                 className={classes.clearButton}
-                onClick={() => {
+                onClick={(e) => {
                   onClear?.()
+                  e.stopPropagation()
                 }}
+                title='Clear Console'
+                aria-label='Clear Console'
               >
                 <ClearIcon />
               </button>
-              {open ? <CollapseIcon /> : <ExpandIcon />}
+              <span className={classes.toggleIcon}>
+                {open ? <CollapseIcon /> : <ExpandIcon />}
+              </span>
             </div>
           </button>
         </div>
-        <div className={classes.content}>
+        <div className={consoleFeedClasses}>
           <ConsoleFeed styles={styles} logs={logs as any} variant={variant} />
         </div>
       </div>

@@ -6,9 +6,20 @@
     font: inherit;
     outline: none;
     cursor: pointer;
+    transition: box-shadow .25s ease;
 }
 
-.button:focus {
+/**
+* Custom cross-browser styles for keyboard :focus overrides defaults.
+*/
+.button:focus { 
     outline: none;
     box-shadow: inset 0 0 0 .125rem rgba(21, 156, 228, 0.4);
+}
+  
+/**
+* Remove focus styles for non-keyboard :focus.
+*/
+.button:focus:not(:focus-visible) {
+    box-shadow: none !important;
 }
