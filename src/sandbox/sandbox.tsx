@@ -41,7 +41,7 @@ const DefaultErrorComponent: FC<ErrorComponentProps> = ({ error, onClose }) => {
       <button className={classes.closeButton} onClick={onClose}>
         <MdClose />
       </button>
-      <pre>{error.message}</pre>
+      <pre className={classes.errorText}>{error.message}</pre>
     </div>
   )
 }
@@ -108,13 +108,6 @@ export const Sandbox = forwardRef(
           onError={handleError}
           className={classes.interpreter}
         />
-        <Console
-          open={consoleOpen}
-          onToggle={setConsoleOpen}
-          onClear={clearConsole}
-          logs={logs}
-          variant={variant}
-        />
         {status === Status.Loading && (
           <div className={classes.overlay}>
             <LoadingComponent />
@@ -130,6 +123,13 @@ export const Sandbox = forwardRef(
             />
           </div>
         )}
+        <Console
+          open={consoleOpen}
+          onToggle={setConsoleOpen}
+          onClear={clearConsole}
+          logs={logs}
+          variant={variant}
+        />
       </div>
     )
   }

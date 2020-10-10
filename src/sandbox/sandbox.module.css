@@ -22,6 +22,7 @@
     padding: 2rem;
     background: rgba(0,0,0,.9);
     color: white;
+    overflow: auto;
 }
 
 .errorText {
@@ -54,9 +55,4 @@
 
 .interpreter {
     flex: 1;
-}
-
-.interpreter button {
-    height: 1.5rem;
-    width: 1.5rem;
 }

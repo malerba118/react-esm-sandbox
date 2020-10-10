@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, useState } from 'react'
 import classnames from 'classnames'
 import { Log } from '../../interpreter'
 import { Console as ConsoleFeed } from 'console-feed'
@@ -7,7 +7,7 @@ import {
   MdExpandMore as CollapseIcon,
   MdDoNotDisturb as ClearIcon
 } from 'react-icons/md'
-
+import { AutoScroll } from '../auto-scroll'
 import classes from './console.module.css'
 
 interface ConsoleProps {
@@ -35,6 +35,8 @@ export const Console: FC<ConsoleProps> = ({
   onToggle,
   onClear
 }) => {
+  const [stickToBottom, setStickToBottom] = useState(true)
+
   const rootClasses = classnames(
     classes.root,
     open ? classes.open : classes.closed,
@@ -43,6 +45,15 @@ export const Console: FC<ConsoleProps> = ({
   )
 
   const consoleFeedClasses = classnames(classes.content, !open && classes.hide)
+
+  const handleScroll = (e: any) => {
+    const elem = e.target
+    if (elem.scrollTop >= elem.scrollHeight - elem.offsetHeight) {
+      !stickToBottom && setStickToBottom(true)
+    } else {
+      stickToBottom && setStickToBottom(false)
+    }
+  }
 
   return (
     <>
@@ -61,6 +72,7 @@ export const Console: FC<ConsoleProps> = ({
                 className={classes.clearButton}
                 onClick={(e) => {
                   onClear?.()
+                  setStickToBottom(true)
                   e.stopPropagation()
                 }}
                 title='Clear Console'
@@ -74,8 +86,9 @@ export const Console: FC<ConsoleProps> = ({
             </div>
           </button>
         </div>
-        <div className={consoleFeedClasses}>
+        <div onScroll={handleScroll} className={consoleFeedClasses}>
           <ConsoleFeed styles={styles} logs={logs as any} variant={variant} />
+          {stickToBottom && <AutoScroll />}
         </div>
       </div>
     </>

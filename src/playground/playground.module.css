@@ -21,10 +21,10 @@
 // } */
 
 .root {
-
     display: grid;
     min-height: 300px;
     height: 100%;
+    overflow: auto;
 }
 
 .column {
@@ -32,6 +32,7 @@
                         "editor"
                         "interpreter";
     grid-template-rows: 2rem 1fr 1fr;
+    grid-template-columns: auto;
 }
 
 .row {
@@ -41,10 +42,17 @@
     grid-template-columns: 50% 50%;
 }
 
-.editor {
+.editorContainer {
     grid-area: editor;
-    min-height: 100%;
-    min-width: 100%;
+    height: 100%;
+    width: 100%;
+    position: relative;
+}
+
+.editor {
+    position: absolute;
+    height: 100%;
+    width: 100%;
 }
 
 .interpreterContainer {
@@ -57,6 +65,7 @@
     grid-area: header;
     background-color: var(--esm-sandbox-background-color);
     color: var(--esm-sandbox-color);
+    overflow: auto;
 }
 
 .headerOverlay {

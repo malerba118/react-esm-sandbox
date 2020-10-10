@@ -112,12 +112,14 @@ export const Playground = ({
           ))}
         </div>
       </div>
-      <Editor
-        className={classes.editor}
-        value={activeFile?.contents ?? ''}
-        onChange={handleChange}
-        theme={theme}
-      />
+      <div className={classes.editorContainer}>
+        <Editor
+          className={classes.editor}
+          value={activeFile?.contents ?? ''}
+          onChange={handleChange}
+          theme={theme}
+        />
+      </div>
       <div className={classes.interpreterContainer}>
         <Sandbox
           ref={interpreterRef}
