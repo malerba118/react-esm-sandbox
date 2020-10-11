@@ -3,15 +3,37 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useLayoutEffect
+  useLayoutEffect,
+  useMemo
 } from 'react'
 import classnames from 'classnames'
 import { SourceFile } from '../interpreter'
 import { Sandbox, SandboxProps } from '../sandbox'
 import { Editor, Highlight } from './editor'
 import { getThemeColors, isDark } from './colors'
+import { Editor as CodeMirrorEditor } from 'codemirror'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
+
+const useEditors = () => {
+  const editors = useRef<Record<string, CodeMirrorEditor>>({})
+
+  return useMemo(
+    () => ({
+      setEditor: (path: string, editor: CodeMirrorEditor | null) => {
+        if (!editor) {
+          delete editors.current[path]
+        } else {
+          editors.current[path] = editor
+        }
+      },
+      getEditor: (path: string) => {
+        return editors.current[path]
+      }
+    }),
+    []
+  )
+}
 
 export { Highlight, Editor }
 
@@ -22,7 +44,7 @@ interface EditorOptions {
 type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
 
 export interface PlaygroundProps extends SandboxProps {
-  active: string | null
+  active: string
   onFileChange: (file: SourceFile) => void
   onActiveChange: (path: string) => void
   theme?: string
@@ -56,6 +78,7 @@ export const Playground = ({
 
   const activeFile = files.find((file) => file.path === active)
   const [interpreterFiles, setInterpreterFiles] = useState(files)
+  const editors = useEditors()
 
   const handleChange = (value: string) => {
     if (activeFile) {
@@ -98,6 +121,10 @@ export const Playground = ({
     requestInterpreterUpdate(files)
   }, [files])
 
+  useEffect(() => {
+    editors.getEditor(active)?.focus()
+  }, [active])
+
   const rootClasses = classnames(
     classes.root,
     layout === PlaygroundLayout.Vertical ? classes.column : classes.row
@@ -125,6 +152,9 @@ export const Playground = ({
       <div className={classes.editorContainer}>
         {files.map((file) => (
           <Editor
+            ref={(editor) => {
+              editors.setEditor(file.path, editor)
+            }}
             key={file.path}
             className={classnames(
               classes.editor,

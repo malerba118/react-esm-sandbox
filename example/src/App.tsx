@@ -28,7 +28,7 @@ interface FileHighlight {
 
 const highlightExample: FileHighlight = {
   highlight: {
-    lines: [7, 8, 9, 10],
+    lines: [6, 7, 8, 9],
     className: 'highlight'
   },
   filePath: 'index.tsx'

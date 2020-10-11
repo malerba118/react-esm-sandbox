@@ -1,4 +1,4 @@
-import React, { FC, useRef, useEffect } from 'react'
+import React, { useRef, useEffect, forwardRef } from 'react'
 import { Controlled as Codemirror } from 'react-codemirror2'
 import { Editor as CodeMirrorEditor } from 'codemirror'
 // import ReactResizeDetector from 'react-resize-detector'
@@ -20,51 +20,55 @@ interface EditorProps {
   highlight?: Highlight
 }
 
-export const Editor: FC<EditorProps> = ({
-  value,
-  onChange,
-  theme = 'dracula',
-  className,
-  highlight
-}) => {
-  const editorRef = useRef<CodeMirrorEditor>()
+export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
+  ({ value, onChange, theme = 'dracula', className, highlight }, ref) => {
+    const editorRef = useRef<CodeMirrorEditor>()
 
-  useEffect(() => {
-    if (editorRef.current) {
-      highlight?.lines.forEach((line) => {
-        editorRef.current?.addLineClass(line, 'background', highlight.className)
-      })
-      return () => {
+    useEffect(() => {
+      if (editorRef.current) {
         highlight?.lines.forEach((line) => {
-          editorRef.current?.removeLineClass(
+          editorRef.current?.addLineClass(
             line,
             'background',
             highlight.className
           )
         })
+        return () => {
+          highlight?.lines.forEach((line) => {
+            editorRef.current?.removeLineClass(
+              line,
+              'background',
+              highlight.className
+            )
+          })
+        }
       }
-    }
-    return () => {}
-  }, [JSON.stringify(highlight)])
+      return () => {}
+    }, [JSON.stringify(highlight)])
 
-  return (
-    <Codemirror
-      className={className}
-      editorDidMount={(editor) => {
-        editorRef.current = editor
-        editor.setSize('100%', '100%')
-        editor.focus()
-      }}
-      options={{
-        theme,
-        mode: {
-          name: 'jsx',
-          base: { name: 'javascript', typescript: true }
-        },
-        lineNumbers: true
-      }}
-      value={value}
-      onBeforeChange={(_, __, val) => onChange(val)}
-    />
-  )
-}
+    return (
+      <Codemirror
+        className={className}
+        editorDidMount={(editor) => {
+          if (typeof ref === 'function') {
+            ref(editor)
+          } else if (!!ref) {
+            ref.current = editor
+          }
+          editorRef.current = editor
+          editor.setSize('100%', '100%')
+        }}
+        options={{
+          theme,
+          mode: {
+            name: 'jsx',
+            base: { name: 'javascript', typescript: true }
+          },
+          lineNumbers: true
+        }}
+        value={value}
+        onBeforeChange={(_, __, val) => onChange(val)}
+      />
+    )
+  }
+)
