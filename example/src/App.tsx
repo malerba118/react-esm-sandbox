@@ -1,13 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import {
-  Box,
-  Stack,
-  Flex,
-  Heading,
-  Text,
-  Button,
-  useColorMode
-} from '@chakra-ui/core'
+import React, { useState } from 'react'
+import { Box, Stack, Flex, Heading, Text, Button } from '@chakra-ui/core'
 
 import {
   Playground,
@@ -126,11 +118,6 @@ export default function useInterval(callback, delay) {
     }
   ])
   const [active, setActive] = useState('index.tsx')
-  const { setColorMode } = useColorMode()
-
-  useEffect(() => {
-    setColorMode('dark')
-  }, [setColorMode])
 
   const updateFile = (file: SourceFile) => {
     setFiles((prev) =>
@@ -144,15 +131,8 @@ export default function useInterval(callback, delay) {
   }
 
   return (
-    <Flex direction='column' h='100vh'>
-      <Box
-        h='64px'
-        bg='gray.800'
-        borderBottom={1}
-        borderBottomStyle='solid'
-        borderBottomColor='whiteAlpha.200'
-      ></Box>
-      <Box position='relative' flex={1} mr='50%' overflow='auto' p='12'>
+    <Flex h={'100vh'}>
+      <Box overflow='auto' p='12' flex={1} position='relative' zIndex={100}>
         <Stack spacing={4}>
           <Heading size='lg'>React ESM Sandbox Demo</Heading>
           <Text size='sm'>
@@ -161,22 +141,22 @@ export default function useInterval(callback, delay) {
           </Text>
           <Button>IDK</Button>
         </Stack>
-        <Box position='fixed' top='64px' w='50%' right={0} bottom={0}>
-          <Playground
-            active={active}
-            onActiveChange={setActive}
-            onLoading={() => console.log('loading')}
-            onLoad={() => console.log('loaded')}
-            onError={console.error}
-            entrypoint='index.tsx'
-            files={files}
-            importMap={importMap}
-            onLog={(data: any) => window.alert(JSON.stringify(data))}
-            transforms={transforms}
-            onFileChange={updateFile}
-            theme='dracula'
-          />
-        </Box>
+      </Box>
+      <Box flex={1} minWidth={480} maxWidth={768}>
+        <Playground
+          active={active}
+          onActiveChange={setActive}
+          onLoading={() => console.log('loading')}
+          onLoad={() => console.log('loaded')}
+          onError={console.error}
+          entrypoint='index.tsx'
+          files={files}
+          importMap={importMap}
+          onLog={(data: any) => window.alert(JSON.stringify(data))}
+          transforms={transforms}
+          onFileChange={updateFile}
+          theme='dracula'
+        />
       </Box>
     </Flex>
   )

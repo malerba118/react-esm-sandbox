@@ -9,12 +9,13 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/core'
 const customTheme = extendTheme({
   config: {
     useSystemColorMode: false,
-    initialColorMode: 'dark'
+    initialColorMode: 'light'
   },
   fonts: {
     body: `"Fira Code", system-ui, sans-serif`
   },
   colors: {
+    white: '#f0f3f7',
     gray: {
       50: '#eef4f9',
       100: '#d3d8de',
