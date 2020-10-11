@@ -14,3 +14,15 @@ code {
   font-family: 'Fira Code';
   font-size: .88rem;
 }
+
+.highlight {
+  background-color: rgba(255,255,255,.06);
+}
+
+.highlightable {
+  background-color: rgba(0,20,80,.1);
+}
+
+.highlightable:hover {
+  background-color: rgba(0,20,80,.15);
+}

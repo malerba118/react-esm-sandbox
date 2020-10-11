@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Box, Stack, Flex, Heading, Text, Button } from '@chakra-ui/core'
+import { Box, Stack, Flex, Heading, Text } from '@chakra-ui/core'
 
 import {
   Playground,
   SkypackImportMap,
   SourceFile,
-  BabelTypescriptTransform
+  BabelTypescriptTransform,
+  Highlight
 } from 'react-esm-sandbox'
 
 const importMap = SkypackImportMap({
@@ -18,6 +19,19 @@ const importMap = SkypackImportMap({
 const transforms = {
   tsx: BabelTypescriptTransform(),
   ts: BabelTypescriptTransform()
+}
+
+interface FileHighlight {
+  filePath: string
+  highlight: Highlight
+}
+
+const highlightExample: FileHighlight = {
+  highlight: {
+    lines: [7, 8, 9, 10],
+    className: 'highlight'
+  },
+  filePath: 'index.tsx'
 }
 
 const App = () => {
@@ -118,6 +132,7 @@ export default function useInterval(callback, delay) {
     }
   ])
   const [active, setActive] = useState('index.tsx')
+  const [highlight, setHighlight] = useState<FileHighlight | null>(null)
 
   const updateFile = (file: SourceFile) => {
     setFiles((prev) =>
@@ -139,7 +154,34 @@ export default function useInterval(callback, delay) {
             react-esm-sandbox makes it super easy to bundle, transpile, and
             interpret es modules directly in the browser
           </Text>
-          <Button>IDK</Button>
+          <Text size='sm'>
+            To the right, you'll notice the Playground component which is the
+            highest level export that react-esm-sandbox has to offer. It renders
+            editors as well as an interpreter and a console.
+          </Text>
+          <Text size='sm'>
+            You may be wondering, how does this differ from CodeSandbox? Well,
+            CodeSandbox sandboxes can only be embeded which means they're mostly
+            rigid except for the handful of options that you can pass as query
+            parameters. Because react-esm-sandbox is a component library, you
+            have full control over the ways in which code snippets are
+            displayed, interpreted, and interacted with.
+          </Text>
+          <Text size='sm'>
+            <span>For example, </span>
+            <span
+              className={'highlightable'}
+              onMouseEnter={() => {
+                setActive('index.tsx')
+                setHighlight(highlightExample)
+              }}
+              onMouseLeave={() => setHighlight(null)}
+            >
+              try hovering over this to have a look at the usage of
+              console.error
+            </span>
+            .
+          </Text>
         </Stack>
       </Box>
       <Box flex={1} minWidth={480} maxWidth={768}>
@@ -156,6 +198,14 @@ export default function useInterval(callback, delay) {
           transforms={transforms}
           onFileChange={updateFile}
           theme='dracula'
+          editorOptions={(file) => {
+            if (highlight && file.path === highlight.filePath) {
+              return {
+                highlight: highlight.highlight
+              }
+            }
+            return {}
+          }}
         />
       </Box>
     </Flex>

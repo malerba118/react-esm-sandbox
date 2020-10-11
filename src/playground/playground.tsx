@@ -8,10 +8,18 @@ import React, {
 import classnames from 'classnames'
 import { SourceFile } from '../interpreter'
 import { Sandbox, SandboxProps } from '../sandbox'
-import { Editor } from './editor'
+import { Editor, Highlight } from './editor'
 import { getThemeColors, isDark } from './colors'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
+
+export { Highlight, Editor }
+
+interface EditorOptions {
+  highlight?: Highlight
+}
+
+type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
 
 export interface PlaygroundProps extends SandboxProps {
   active: string | null
@@ -19,6 +27,7 @@ export interface PlaygroundProps extends SandboxProps {
   onActiveChange: (path: string) => void
   theme?: string
   layout?: PlaygroundLayout
+  editorOptions?: GetEditorOptions
 }
 
 export enum PlaygroundLayout {
@@ -40,7 +49,8 @@ export const Playground = ({
   active,
   onActiveChange,
   theme = 'dracula',
-  layout = PlaygroundLayout.Vertical
+  layout = PlaygroundLayout.Vertical,
+  editorOptions = () => undefined
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
 
@@ -113,12 +123,19 @@ export const Playground = ({
         </div>
       </div>
       <div className={classes.editorContainer}>
-        <Editor
-          className={classes.editor}
-          value={activeFile?.contents ?? ''}
-          onChange={handleChange}
-          theme={theme}
-        />
+        {files.map((file) => (
+          <Editor
+            key={file.path}
+            className={classnames(
+              classes.editor,
+              activeFile?.path !== file.path && classes.hide
+            )}
+            value={file.contents ?? ''}
+            onChange={handleChange}
+            theme={theme}
+            {...editorOptions(file)}
+          />
+        ))}
       </div>
       <div className={classes.interpreterContainer}>
         <Sandbox
