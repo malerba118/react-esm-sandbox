@@ -39,6 +39,7 @@ export { Highlight, Editor }
 
 interface EditorOptions {
   highlight?: Highlight
+  tabSize?: number
 }
 
 type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined

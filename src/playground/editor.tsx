@@ -18,10 +18,14 @@ interface EditorProps {
   theme?: string
   className?: string
   highlight?: Highlight
+  tabSize?: number
 }
 
 export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
-  ({ value, onChange, theme = 'dracula', className, highlight }, ref) => {
+  (
+    { value, onChange, theme = 'dracula', className, highlight, tabSize = 2 },
+    ref
+  ) => {
     const editorRef = useRef<CodeMirrorEditor>()
 
     useEffect(() => {
@@ -64,7 +68,8 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
             name: 'jsx',
             base: { name: 'javascript', typescript: true }
           },
-          lineNumbers: true
+          lineNumbers: true,
+          tabSize
         }}
         value={value}
         onBeforeChange={(_, __, val) => onChange(val)}

@@ -190,7 +190,7 @@ export default function useInterval(callback, delay) {
           onActiveChange={setActive}
           onLoading={() => console.log('loading')}
           onLoad={() => console.log('loaded')}
-          onError={console.error}
+          onError={(err) => console.log(err.name)}
           entrypoint='index.tsx'
           files={files}
           importMap={importMap}
@@ -199,12 +199,14 @@ export default function useInterval(callback, delay) {
           onFileChange={updateFile}
           theme='dracula'
           editorOptions={(file) => {
+            const base = {}
             if (highlight && file.path === highlight.filePath) {
               return {
+                ...base,
                 highlight: highlight.highlight
               }
             }
-            return {}
+            return base
           }}
         />
       </Box>

@@ -15,7 +15,7 @@ export type TranspiledFile = {
   contents: string
 }
 
-export type Transform = (code: string) => string
+export type Transform = (code: string) => Promise<string> | string
 
 export type LogMethod =
   | 'log'

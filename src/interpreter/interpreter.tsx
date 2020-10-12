@@ -13,7 +13,6 @@ import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
 import { keyBy } from './utils/key-by'
 import { useConstant } from './utils/hooks'
 import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
-import '../global.css'
 import classes from './interpreter.module.css'
 
 export interface InterpreterProps {
@@ -49,34 +48,38 @@ type GetNextTranspiledFilesMapParams = {
   transforms: Record<string, Transform>
 }
 
-const getNextTranspiledFilesMap = ({
+const getNextTranspiledFilesMap = async ({
   prevSourceFilesMap,
   nextSourceFilesMap,
   transpiledFilesMap,
   transforms
 }: GetNextTranspiledFilesMapParams) => {
-  const nextTranspiledFilesMap: Record<string, TranspiledFile> = {}
-  Object.values(nextSourceFilesMap).forEach((nextSourceFile) => {
-    const prevSourceFile = prevSourceFilesMap[nextSourceFile.path]
-    if (
-      !prevSourceFile ||
-      prevSourceFile.contents !== nextSourceFile.contents
-    ) {
-      const fileExtension = getFileExtension(nextSourceFile.path)
-      const transform = transforms[fileExtension]
-      // transform and add to nextTranspiledFilesMap
-      nextTranspiledFilesMap[nextSourceFile.path] = {
-        path: nextSourceFile.path,
-        contents:
-          transform?.(nextSourceFile.contents) ?? nextSourceFile.contents
+  const transpiledFilePromises = Object.entries(nextSourceFilesMap).map(
+    async ([nextSourceFilePath, nextSourceFile]) => {
+      const prevSourceFile = prevSourceFilesMap[nextSourceFilePath]
+      if (
+        !prevSourceFile ||
+        prevSourceFile.contents !== nextSourceFile.contents
+      ) {
+        const fileExtension = getFileExtension(nextSourceFile.path)
+        const transform = transforms[fileExtension]
+        // transform and add to nextTranspiledFilesMap
+        return {
+          path: nextSourceFile.path,
+          contents:
+            (await transform?.(nextSourceFile.contents)) ??
+            nextSourceFile.contents
+        }
+      } else {
+        // copy over old transpiled file to nextTranspiledFilesMap
+        return transpiledFilesMap[nextSourceFile.path]
       }
-    } else {
-      // copy over old transpiled file to nextTranspiledFilesMap
-      nextTranspiledFilesMap[nextSourceFile.path] =
-        transpiledFilesMap[nextSourceFile.path]
     }
-  })
-  return nextTranspiledFilesMap
+  )
+
+  return Promise.all(transpiledFilePromises).then((files) =>
+    keyBy(files, 'path')
+  )
 }
 
 type BuildDocumentParams = {
@@ -125,12 +128,22 @@ const buildDocument = ({
         _info = console.info,
         _warn = console.warn,
         _error = console.error
+        _table = console.table
 
   console.debug = createConsoleProxy('debug', _debug)
   console.log = createConsoleProxy('log', _log)
   console.info = createConsoleProxy('info', _info)
   console.warn = createConsoleProxy('warn', _warn)
   console.error = createConsoleProxy('error', _error)
+  console.table = createConsoleProxy('table', _table)
+
+  window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+    postMessage({
+      type: 'error',
+      payload: new Error(errorMsg)
+    });
+    return false;
+  }
 </script>` +
     inputDocument +
     `
@@ -226,18 +239,19 @@ export const Interpreter = forwardRef(
 
     useEffect(() => {
       const nextSourceFilesMap = keyBy(files, 'path')
-      try {
-        const nextTranspiledFilesMap = getNextTranspiledFilesMap({
-          prevSourceFilesMap: prevSourceFilesMapRef.current,
-          nextSourceFilesMap,
-          transpiledFilesMap,
-          transforms
+      getNextTranspiledFilesMap({
+        prevSourceFilesMap: prevSourceFilesMapRef.current,
+        nextSourceFilesMap,
+        transpiledFilesMap,
+        transforms
+      })
+        .then((nextTranspiledFilesMap) => {
+          setTranspiledFilesMap(nextTranspiledFilesMap)
+          prevSourceFilesMapRef.current = nextSourceFilesMap
         })
-        setTranspiledFilesMap(nextTranspiledFilesMap)
-        prevSourceFilesMapRef.current = nextSourceFilesMap
-      } catch (err) {
-        onError?.(err)
-      }
+        .catch((err) => {
+          onError?.(err)
+        })
     }, [files])
 
     const _importMap = useMemo(() => {
