@@ -6,7 +6,9 @@ import {
   SkypackImportMap,
   SourceFile,
   BabelTypescriptTransform,
-  Highlight
+  Highlight,
+  Editor,
+  PlaygroundLayout
 } from 'react-esm-sandbox'
 
 const importMap = SkypackImportMap({
@@ -129,6 +131,24 @@ export default function useInterval(callback, delay) {
 
   return intervalId.current;
 };`
+    },
+    {
+      path: 'components/Box.tsx',
+      contents: `import React from 'react';
+
+const Box = ({ children, display, align, justify, h, w }) => {
+  const style = {
+    display,
+    alignItems: align,
+    justifyContent: justify,
+    height: h,
+    width: w
+  };
+  return <div style={style}>{children}</div>;
+};
+
+export default Box;
+`
     }
   ])
   const [active, setActive] = useState('index.tsx')
@@ -144,6 +164,10 @@ export default function useInterval(callback, delay) {
       })
     )
   }
+
+  const boxFile = files.find(
+    (f) => f.path === 'components/Box.tsx'
+  ) as SourceFile
 
   return (
     <Flex h={'100vh'}>
@@ -182,6 +206,15 @@ export default function useInterval(callback, delay) {
             </span>
             .
           </Text>
+          <Editor
+            value={boxFile.contents}
+            onChange={(val) => {
+              updateFile({
+                ...boxFile,
+                contents: val
+              })
+            }}
+          />
         </Stack>
       </Box>
       <Box flex={1} minWidth={480} maxWidth={768}>
@@ -190,7 +223,10 @@ export default function useInterval(callback, delay) {
           onActiveChange={setActive}
           onLoading={() => console.log('loading')}
           onLoad={() => console.log('loaded')}
-          onError={(err) => console.log(err.name)}
+          onError={(err: any) => {
+            console.log({ message: err.message })
+            console.log(Object.keys(err))
+          }}
           entrypoint='index.tsx'
           files={files}
           importMap={importMap}
@@ -208,6 +244,7 @@ export default function useInterval(callback, delay) {
             }
             return base
           }}
+          layout={PlaygroundLayout.Vertical}
         />
       </Box>
     </Flex>

@@ -1,109 +1,32 @@
-/* // .esm-sandbox-playground-material {
-//     .header {
-//         background-color: #263238;
-//         color: #EEFFFF;
-//     }
-
-//     .active-tab {
-//         background-color: #263238;
-//     }
-// }
-
-// .esm-sandbox-playground-dracula {
-//     .header {
-//         background-color: #282a36;
-//         color: #f8f8f2;
-//     }
-
-//     .active-tab {
-//         background-color: #282a36;
-//     }
-// } */
 
 .root {
-    display: grid;
+    display: flex;
     min-height: 300px;
     height: 100%;
-    overflow: auto;
 }
 
-.column {
-    grid-template-areas: "header"
-                        "editor"
-                        "interpreter";
-    grid-template-rows: 2rem 1fr 1fr;
-    grid-template-columns: auto;
+.vertical {
+    flex-direction: column;
 }
 
-.row {
-    grid-template-areas: "header interpreter"
-                        "editor  interpreter";
-    grid-template-rows: 2rem auto;
-    grid-template-columns: 50% 50%;
+.horizontal {
+    flex-direction: row;
 }
 
-.editorContainer {
-    grid-area: editor;
-    height: 100%;
-    width: 100%;
-    position: relative;
+.vertical .editorGroupContainer {
+    height: 50%;
 }
 
-.editor {
-    position: absolute;
-    height: 100%;
-    width: 100%;
+.vertical  .interpreterContainer {
+    height: 50%;
 }
 
-.interpreterContainer {
-    grid-area: interpreter;
+.horizontal .editorGroupContainer {
+    width: 50%;
 }
 
-.header {
-    position: relative;
-    height: 2rem;
-    grid-area: header;
-    background-color: var(--esm-sandbox-background-color);
-    color: var(--esm-sandbox-color);
-    overflow: auto;
-}
-
-.headerOverlay {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background: var(--esm-sandbox-overlay-color)
-}
-
-.tabs {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    overflow-x: auto;
-    font-size: .9rem;
-}
-
-.tab {
-    composes: button from '../global.css';
-    height: 100%;
-    padding: 0px .5rem;
-}
-
-.activeTab {
-    background-color: var(--esm-sandbox-background-color);
-    position: relative;
-    z-index: 1;
-}
-
-.inactiveTab {
-    background: none;
-    z-index: 1;
-}
-
-.CodeMirror {
-    height: 100%;
+.horizontal  .interpreterContainer {
+    width: 50%;
 }
 
 .hide {

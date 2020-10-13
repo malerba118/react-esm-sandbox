@@ -3,54 +3,17 @@ import React, {
   useCallback,
   useEffect,
   useState,
-  useLayoutEffect,
-  useMemo
+  useLayoutEffect
 } from 'react'
 import classnames from 'classnames'
-import { SourceFile } from '../interpreter'
 import { Sandbox, SandboxProps } from '../sandbox'
-import { Editor, Highlight } from './editor'
+import { EditorGroup, EditorGroupProps } from './editor-group'
 import { getThemeColors, isDark } from './colors'
-import { Editor as CodeMirrorEditor } from 'codemirror'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
-const useEditors = () => {
-  const editors = useRef<Record<string, CodeMirrorEditor>>({})
-
-  return useMemo(
-    () => ({
-      setEditor: (path: string, editor: CodeMirrorEditor | null) => {
-        if (!editor) {
-          delete editors.current[path]
-        } else {
-          editors.current[path] = editor
-        }
-      },
-      getEditor: (path: string) => {
-        return editors.current[path]
-      }
-    }),
-    []
-  )
-}
-
-export { Highlight, Editor }
-
-interface EditorOptions {
-  highlight?: Highlight
-  tabSize?: number
-}
-
-type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
-
-export interface PlaygroundProps extends SandboxProps {
-  active: string
-  onFileChange: (file: SourceFile) => void
-  onActiveChange: (path: string) => void
-  theme?: string
+export interface PlaygroundProps extends SandboxProps, EditorGroupProps {
   layout?: PlaygroundLayout
-  editorOptions?: GetEditorOptions
 }
 
 export enum PlaygroundLayout {
@@ -77,18 +40,7 @@ export const Playground = ({
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
 
-  const activeFile = files.find((file) => file.path === active)
   const [interpreterFiles, setInterpreterFiles] = useState(files)
-  const editors = useEditors()
-
-  const handleChange = (value: string) => {
-    if (activeFile) {
-      onFileChange({
-        ...activeFile,
-        contents: value
-      })
-    }
-  }
 
   const requestInterpreterUpdate = useCallback(
     debounce((files) => {
@@ -122,51 +74,22 @@ export const Playground = ({
     requestInterpreterUpdate(files)
   }, [files])
 
-  useEffect(() => {
-    editors.getEditor(active)?.focus()
-  }, [active])
-
   const rootClasses = classnames(
     classes.root,
-    layout === PlaygroundLayout.Vertical ? classes.column : classes.row
+    layout === PlaygroundLayout.Vertical ? classes.vertical : classes.horizontal
   )
 
   return (
     <div className={rootClasses}>
-      <div className={classes.header}>
-        <div className={classes.headerOverlay}></div>
-        <div className={classes.tabs}>
-          {files.map((file) => (
-            <button
-              key={file.path}
-              className={classnames(
-                classes.tab,
-                active === file.path ? classes.activeTab : classes.inactiveTab
-              )}
-              onClick={() => onActiveChange(file.path)}
-            >
-              {file.path}
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className={classes.editorContainer}>
-        {files.map((file) => (
-          <Editor
-            ref={(editor) => {
-              editors.setEditor(file.path, editor)
-            }}
-            key={file.path}
-            className={classnames(
-              classes.editor,
-              activeFile?.path !== file.path && classes.hide
-            )}
-            value={file.contents ?? ''}
-            onChange={handleChange}
-            theme={theme}
-            {...editorOptions(file)}
-          />
-        ))}
+      <div className={classes.editorGroupContainer}>
+        <EditorGroup
+          files={files}
+          active={active}
+          onFileChange={onFileChange}
+          onActiveChange={onActiveChange}
+          editorOptions={editorOptions}
+          theme={theme}
+        />
       </div>
       <div className={classes.interpreterContainer}>
         <Sandbox
