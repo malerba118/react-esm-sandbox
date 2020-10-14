@@ -36,6 +36,7 @@ export const Playground = ({
   onActiveChange,
   theme = 'dracula',
   layout = PlaygroundLayout.Vertical,
+  focusOnActivation,
   editorOptions = () => undefined
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
@@ -89,6 +90,7 @@ export const Playground = ({
           onActiveChange={onActiveChange}
           editorOptions={editorOptions}
           theme={theme}
+          focusOnActivation={focusOnActivation}
         />
       </div>
       <div className={classes.interpreterContainer}>

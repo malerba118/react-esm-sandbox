@@ -1,26 +1,27 @@
 import React, { useState } from 'react'
-import { Box, Stack, Flex, Heading, Text } from '@chakra-ui/core'
+import { Box, Stack, Heading, Text } from '@chakra-ui/core'
 
 import {
   Playground,
   SkypackImportMap,
   SourceFile,
   BabelTypescriptTransform,
+  CssTransform,
   Highlight,
-  Editor,
+  EditorGroup,
   PlaygroundLayout
 } from 'react-esm-sandbox'
 
 const importMap = SkypackImportMap({
   react: 'latest',
   'react-dom': 'latest',
-  'framer-motion': 'latest',
-  'insert-css': 'latest'
+  'framer-motion': 'latest'
 })
 
 const transforms = {
-  tsx: BabelTypescriptTransform(),
-  ts: BabelTypescriptTransform()
+  jsx: BabelTypescriptTransform(),
+  ts: BabelTypescriptTransform(),
+  css: CssTransform()
 }
 
 interface FileHighlight {
@@ -30,128 +31,129 @@ interface FileHighlight {
 
 const highlightExample: FileHighlight = {
   highlight: {
-    lines: [6, 7, 8, 9],
+    lines: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
     className: 'highlight'
   },
-  filePath: 'index.tsx'
+  filePath: 'index.jsx'
 }
 
 const App = () => {
   const [files, setFiles] = useState([
     {
-      path: 'index.tsx',
-      contents: `import React from 'react';
-import ReactDOM from 'react-dom';
-import css from 'insert-css';
-import Animation from './Animation.tsx';
-import useInterval from './hooks/useInterval.ts';
+      path: 'index.jsx',
+      contents: `import React from "react";
+import ReactDOM from "react-dom";
+import InteractiveContainer from "./components/InteractiveContainer.jsx";
+import "./styles.css";
 
-console.error({
-  foo: 1,
-  bar: [0, 3, 5]
-});
-
-css(\`
-  body {
-    height: 100vh;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  div {
-    background: #4caf5e;
-    border-radius: 30px;
-    width: 100px;
-    height: 100px;
-  }
-\`)
-
-const App = () => {
-  useInterval(() => {
-    console.log({ timestamp: Date.now() })
-  }, 1000)
-
-  return <Animation />
+function App() {
+  return (
+    <InteractiveContainer className="image-container">
+      <img
+        className="image"
+        src="https://picsum.photos/id/66/900/600"
+        alt="kitten"
+      />
+    </InteractiveContainer>
+  );
 }
 
+const rootElement = document.getElementById("root");
 ReactDOM.render(
-  <App />,
-  document.body
-)
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  rootElement
+); 
 `
     },
     {
-      path: 'Animation.tsx',
-      contents: `import React from 'react'
-import { motion } from 'framer-motion';
+      path: 'components/InteractiveContainer.jsx',
+      contents: `import React from "react";
+import { motion, useSpring } from "framer-motion";
+import { getRelativeMousePosition } from "../utils.js";
 
-const Animation = () => {
+export default function InteractiveContainer({ style, ...otherProps }) {
+  const x = useSpring(0, { stiffness: 1000, damping: 50 });
+  const y = useSpring(0, { stiffness: 1000, damping: 50 });
+
+  const handleMouseMove = (e) => {
+    const pos = getRelativeMousePosition(e);
+    x.set(pos.x / 25);
+    y.set(-pos.y / 25);
+  };
+
+  const handleMouseLeave = (e) => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
     <motion.div
-      animate={{
-        scale: [1, 2, 2, 1, 1],
-        rotate: [0, 0, 270, 270, 0],
-        borderRadius: ["20%", "20%", "50%", "50%", "20%"]
-      }}
-      transition={{
-        duration: 2,
-        ease: "easeInOut",
-        times: [0, 0.2, 0.5, 0.8, 1],
-        loop: Infinity,
-        repeatDelay: 1
-      }}
+      {...otherProps}
+      style={{ rotateY: x, rotateX: y, perspective: 500, ...style }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
     />
   );
-};
-
-export default Animation;
+}      
 `
     },
     {
-      path: 'hooks/useInterval.ts',
-      contents: `import React from 'react';
-
-export default function useInterval(callback, delay) {
-  const intervalId = React.useRef(null);
-  const savedCallback = React.useRef(callback);
-
-  React.useEffect(() => {
-    savedCallback.current = callback;
-  });
-
-  React.useEffect(() => {
-    const tick = () => savedCallback.current();
-    if (typeof delay === 'number') {
-      intervalId.current = window.setInterval(tick, delay);
-      return () => window.clearInterval(intervalId.current);
-    }
-  }, [delay]);
-
-  return intervalId.current;
-};`
+      path: 'utils.js',
+      contents: `
+export const getRelativeMousePosition = (e) => {
+  const el = e.currentTarget;
+  const mousePosition = {
+    x: e.pageX,
+    y: e.pageY
+  };
+  const elementCenter = {
+    x: el.offsetLeft + el.offsetWidth / 2,
+    y: el.offsetTop + el.offsetHeight / 2
+  };
+  return {
+    x: mousePosition.x - elementCenter.x,
+    y: mousePosition.y - elementCenter.y
+  };
+};
+`
     },
     {
-      path: 'components/Box.tsx',
-      contents: `import React from 'react';
+      path: 'styles.css',
+      contents: `html,
+body,
+#root {
+  height: 100%;
+}
 
-const Box = ({ children, display, align, justify, h, w }) => {
-  const style = {
-    display,
-    alignItems: align,
-    justifyContent: justify,
-    height: h,
-    width: w
-  };
-  return <div style={style}>{children}</div>;
-};
+body {
+  margin: 0;
+}
 
-export default Box;
+#root {
+  padding: 36px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.image-container {
+  height: 100%;
+  width: 400px;
+  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.4);
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
 `
     }
   ])
-  const [active, setActive] = useState('index.tsx')
+  const [active, setActive] = useState('index.jsx')
   const [highlight, setHighlight] = useState<FileHighlight | null>(null)
 
   const updateFile = (file: SourceFile) => {
@@ -165,59 +167,75 @@ export default Box;
     )
   }
 
-  const boxFile = files.find(
-    (f) => f.path === 'components/Box.tsx'
+  const utilsFile = files.find((f) => f.path === 'utils.js') as SourceFile
+  const containerFile = files.find(
+    (f) => f.path === 'components/InteractiveContainer.jsx'
   ) as SourceFile
 
   return (
-    <Flex h={'100vh'}>
-      <Box overflow='auto' p='12' flex={1} position='relative' zIndex={100}>
-        <Stack spacing={4}>
+    <>
+      <Box
+        className='tutorial'
+        p={'4rem'}
+        w='55%'
+        position='relative'
+        zIndex={100}
+      >
+        <Stack spacing={6}>
           <Heading size='lg'>React ESM Sandbox Demo</Heading>
           <Text size='sm'>
-            react-esm-sandbox makes it super easy to bundle, transpile, and
-            interpret es modules directly in the browser
+            In this mini tutorial, we'll build a special container that rotates
+            on hover. Try hovering over the image to the right and take note of
+            the effect.
           </Text>
           <Text size='sm'>
-            To the right, you'll notice the Playground component which is the
-            highest level export that react-esm-sandbox has to offer. It renders
-            editors as well as an interpreter and a console.
+            In order to implement this effect, we'll need a utility that can get
+            the mouse's position in relation to the center of the hovered
+            element. Below is a code snippet to grab the mouse position. Try
+            editing it this file and see what happens.
           </Text>
+          <EditorGroup
+            className='inline-editor'
+            active={utilsFile.path}
+            files={[utilsFile]}
+            onFileChange={(val) => {
+              updateFile(val)
+              setActive(val.path)
+            }}
+          />
           <Text size='sm'>
-            You may be wondering, how does this differ from CodeSandbox? Well,
-            CodeSandbox sandboxes can only be embeded which means they're mostly
-            rigid except for the handful of options that you can pass as query
-            parameters. Because react-esm-sandbox is a component library, you
-            have full control over the ways in which code snippets are
-            displayed, interpreted, and interacted with.
+            Next, let's create a component that consumes the mouse position and
+            performs rotations for us.
           </Text>
+          <EditorGroup
+            className='inline-editor'
+            active={containerFile.path}
+            files={[containerFile]}
+            onFileChange={(val) => {
+              updateFile(val)
+              setActive(val.path)
+            }}
+          />
           <Text size='sm'>
-            <span>For example, </span>
+            <span>
+              On the right we consume InteractiveContainer in the Playground.{' '}
+            </span>
             <span
               className={'highlightable'}
               onMouseEnter={() => {
-                setActive('index.tsx')
+                setActive('index.jsx')
                 setHighlight(highlightExample)
               }}
               onMouseLeave={() => setHighlight(null)}
             >
-              try hovering over this to have a look at the usage of
-              console.error
+              Try hovering over this to have a look at the App component where
+              InteractiveContainer is used
             </span>
             .
           </Text>
-          <Editor
-            value={boxFile.contents}
-            onChange={(val) => {
-              updateFile({
-                ...boxFile,
-                contents: val
-              })
-            }}
-          />
         </Stack>
       </Box>
-      <Box flex={1} minWidth={480} maxWidth={768}>
+      <Box position='fixed' w='45%' top={0} right={0} bottom={0}>
         <Playground
           active={active}
           onActiveChange={setActive}
@@ -227,7 +245,7 @@ export default Box;
             console.log({ message: err.message })
             console.log(Object.keys(err))
           }}
-          entrypoint='index.tsx'
+          entrypoint='index.jsx'
           files={files}
           importMap={importMap}
           onLog={(data: any) => window.alert(JSON.stringify(data))}
@@ -245,9 +263,10 @@ export default Box;
             return base
           }}
           layout={PlaygroundLayout.Vertical}
+          focusOnActivation={false}
         />
       </Box>
-    </Flex>
+    </>
   )
 }
 

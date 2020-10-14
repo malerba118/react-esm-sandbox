@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, forwardRef } from 'react'
 import { Controlled as Codemirror } from 'react-codemirror2'
 import { Editor as CodeMirrorEditor } from 'codemirror'
-// import ReactResizeDetector from 'react-resize-detector'
+import classnames from 'classnames'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/mode/jsx/jsx.js'
 import 'codemirror/lib/codemirror.css'
 import 'codemirror/theme/dracula.css'
+import classes from './editor.module.css'
 
 export interface Highlight {
   lines: number[]
@@ -50,9 +51,16 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
       return () => {}
     }, [JSON.stringify(highlight)])
 
+    const classNames = classnames(classes.root, className)
+
+    // const handleResize = ({ height, width }: any) => {
+    //   editorRef.current?.setSize(height, width)
+    //   editorRef.current?.refresh()
+    // }
+
     return (
       <Codemirror
-        className={className}
+        className={classNames}
         editorDidMount={(editor) => {
           if (typeof ref === 'function') {
             ref(editor)
@@ -69,7 +77,8 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
             base: { name: 'javascript', typescript: true }
           },
           lineNumbers: true,
-          tabSize
+          tabSize,
+          viewportMargin: Infinity
         }}
         value={value}
         onBeforeChange={(_, __, val) => onChange(val)}

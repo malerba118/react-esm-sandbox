@@ -26,3 +26,12 @@ code {
 .highlightable:hover {
   background-color: rgba(0,20,80,.15);
 }
+
+.tutorial::after {
+  content: '';
+  margin-bottom: 12rem;
+}
+
+.inline-editor {
+  height: 300px !important;
+}

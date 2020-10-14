@@ -35,10 +35,12 @@ type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
 export interface EditorGroupProps {
   active: string
   files: SourceFile[]
-  onFileChange: (file: SourceFile) => void
-  onActiveChange: (path: string) => void
+  onFileChange?: (file: SourceFile) => void
+  onActiveChange?: (path: string) => void
   theme?: string
   editorOptions?: GetEditorOptions
+  focusOnActivation?: boolean
+  className?: string
 }
 
 export const EditorGroup: FC<EditorGroupProps> = ({
@@ -46,28 +48,34 @@ export const EditorGroup: FC<EditorGroupProps> = ({
   active,
   onActiveChange,
   onFileChange,
+  focusOnActivation = true,
   theme,
-  editorOptions = () => undefined
+  editorOptions = () => undefined,
+  className
 }) => {
   const editors = useEditors()
   const activeFile = files.find((file) => file.path === active)
 
   useEffect(() => {
-    editors.getEditor(active)?.focus()
-    editors.getEditor(active)?.refresh()
-  }, [active])
+    if (focusOnActivation) {
+      editors.getEditor(active)?.focus()
+      editors.getEditor(active)?.refresh()
+    }
+  }, [active, focusOnActivation])
 
   const handleChange = (value: string) => {
     if (activeFile) {
-      onFileChange({
+      onFileChange?.({
         ...activeFile,
         contents: value
       })
     }
   }
 
+  const rootClasses = classnames(className, classes.root)
+
   return (
-    <div className={classes.root}>
+    <div className={rootClasses}>
       <div className={classes.header}>
         <div className={classes.headerOverlay}></div>
         <div className={classes.tabs}>
@@ -78,7 +86,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
                 classes.tab,
                 active === file.path ? classes.activeTab : classes.inactiveTab
               )}
-              onClick={() => onActiveChange(file.path)}
+              onClick={() => onActiveChange?.(file.path)}
             >
               {file.path}
             </button>
