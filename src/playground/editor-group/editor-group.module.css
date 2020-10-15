@@ -18,6 +18,11 @@
     min-height: 200px;
 }
 
+.headerContainer {
+    position: relative;
+    overflow: auto;
+}
+
 .header {
     position: relative;
     height: 2rem;

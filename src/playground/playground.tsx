@@ -12,8 +12,11 @@ import { getThemeColors, isDark } from './colors'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
-export interface PlaygroundProps extends SandboxProps, EditorGroupProps {
+export interface PlaygroundProps
+  extends Omit<SandboxProps, 'components'>,
+    Omit<EditorGroupProps, 'components'> {
   layout?: PlaygroundLayout
+  components?: SandboxProps['components'] & EditorGroupProps['components']
 }
 
 export enum PlaygroundLayout {
@@ -37,6 +40,7 @@ export const Playground = ({
   theme = 'dracula',
   layout = PlaygroundLayout.Vertical,
   focusOnActivation,
+  components,
   editorOptions = () => undefined
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
@@ -91,6 +95,7 @@ export const Playground = ({
           editorOptions={editorOptions}
           theme={theme}
           focusOnActivation={focusOnActivation}
+          components={components}
         />
       </div>
       <div className={classes.interpreterContainer}>
@@ -106,6 +111,7 @@ export const Playground = ({
           onLog={onLog}
           transforms={transforms}
           variant={isDark(background) ? 'dark' : 'light'}
+          components={components}
         />
       </div>
     </div>

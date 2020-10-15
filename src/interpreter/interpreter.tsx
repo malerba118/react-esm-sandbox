@@ -9,11 +9,19 @@ import React, {
 } from 'react'
 import { v4 as uuid } from 'uuid'
 import classnames from 'classnames'
-import { jsonToDataUrl, resolveUrl, getFileExtension } from './utils/url'
-import { keyBy } from './utils/key-by'
-import { useConstant } from './utils/hooks'
-import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from './types'
+import {
+  jsonToDataUrl,
+  resolveUrl,
+  getFileExtension,
+  jsToDataUrl
+} from '../utils/url'
+import { keyBy } from '../utils/key-by'
+import { useConstant } from '../utils/hooks'
+import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from '../types'
+import esmShims from './esm-shims.txt'
 import classes from './interpreter.module.css'
+
+const esmShimsUrl = jsToDataUrl(esmShims)
 
 export interface InterpreterProps {
   doc?: string
@@ -147,7 +155,7 @@ const buildDocument = ({
 </script>` +
     inputDocument +
     `
-<script defer src="/es-module-shims.js"></script>
+<script defer src="${esmShimsUrl}"></script>
 <script type="importmap-shim" src="${importMapUrl}"></script>
 <script data-alias="${baseUrl}" type="module-shim">
   postMessage({

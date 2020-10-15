@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Box, Stack, Heading, Text } from '@chakra-ui/core'
-
+import 'codemirror/lib/codemirror.css'
+import 'codemirror/theme/dracula.css'
 import {
   Playground,
   SkypackImportMap,
@@ -101,8 +102,7 @@ export default function InteractiveContainer({ style, ...otherProps }) {
     },
     {
       path: 'utils.js',
-      contents: `
-export const getRelativeMousePosition = (e) => {
+      contents: `export const getRelativeMousePosition = (e) => {
   const el = e.currentTarget;
   const mousePosition = {
     x: e.pageX,
@@ -192,7 +192,7 @@ body {
             In order to implement this effect, we'll need a utility that can get
             the mouse's position in relation to the center of the hovered
             element. Below is a code snippet to grab the mouse position. Try
-            editing it this file and see what happens.
+            editing this file and see what happens.
           </Text>
           <EditorGroup
             className='inline-editor'

@@ -1,7 +1,7 @@
 import React, { useState, forwardRef, ComponentType, FC } from 'react'
 import { Interpreter, InterpreterProps, Log } from '../interpreter'
 import { Spinner } from './spinner'
-import { Console } from './console'
+import { Console as DefaultConsoleComponent, ConsoleProps } from './console'
 import { MdClose } from 'react-icons/md'
 import classes from './sandbox.module.css'
 
@@ -18,11 +18,13 @@ interface ErrorComponentProps {
 
 type LoadingComponent = ComponentType<{}>
 type ErrorComponent = ComponentType<ErrorComponentProps>
+type ConsoleComponent = ComponentType<ConsoleProps>
 
 export interface SandboxProps extends InterpreterProps {
   components?: {
-    loading?: LoadingComponent
-    error?: ErrorComponent
+    loading?: LoadingComponent | null
+    error?: ErrorComponent | null
+    console?: ConsoleComponent | null
   }
   variant?: 'light' | 'dark'
 }
@@ -48,7 +50,8 @@ const DefaultErrorComponent: FC<ErrorComponentProps> = ({ error, onClose }) => {
 
 const defaultComponents = {
   loading: DefaultLoadingComponent,
-  error: DefaultErrorComponent
+  error: DefaultErrorComponent,
+  console: DefaultConsoleComponent
 }
 
 export const Sandbox = forwardRef(
@@ -72,7 +75,11 @@ export const Sandbox = forwardRef(
       setLogs((prev) => [...prev, log])
     }
 
-    const { loading: LoadingComponent, error: ErrorComponent } = {
+    const {
+      loading: LoadingComponent,
+      error: ErrorComponent,
+      console: ConsoleComponent
+    } = {
       ...defaultComponents,
       ...components
     }
@@ -108,12 +115,12 @@ export const Sandbox = forwardRef(
           onError={handleError}
           className={classes.interpreter}
         />
-        {status === Status.Loading && (
+        {status === Status.Loading && LoadingComponent && (
           <div className={classes.overlay}>
             <LoadingComponent />
           </div>
         )}
-        {status === Status.Errored && error && (
+        {status === Status.Errored && ErrorComponent && error && (
           <div className={classes.overlay}>
             <ErrorComponent
               error={error}
@@ -123,13 +130,15 @@ export const Sandbox = forwardRef(
             />
           </div>
         )}
-        <Console
-          open={consoleOpen}
-          onToggle={setConsoleOpen}
-          onClear={clearConsole}
-          logs={logs}
-          variant={variant}
-        />
+        {ConsoleComponent && (
+          <ConsoleComponent
+            open={consoleOpen}
+            onToggle={setConsoleOpen}
+            onClear={clearConsole}
+            logs={logs}
+            variant={variant}
+          />
+        )}
       </div>
     )
   }

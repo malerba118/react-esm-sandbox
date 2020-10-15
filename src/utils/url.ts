@@ -1,5 +1,9 @@
 export const jsonToDataUrl = (data: any) => {
-  return `data:application/json;base64,${btoa(JSON.stringify(data))}`
+  return `data:application/json,${encodeURIComponent(JSON.stringify(data))}`
+}
+
+export const jsToDataUrl = (data: string) => {
+  return `data:application/javascript,${encodeURIComponent(data)}`
 }
 
 export const resolveUrl = (baseUrl: string, segment: string) => {

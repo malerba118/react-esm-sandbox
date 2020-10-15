@@ -1,6 +1,7 @@
 import typescript from 'rollup-plugin-typescript2'
 import external from 'rollup-plugin-peer-deps-external'
 import postcss from 'rollup-plugin-postcss';
+import { string } from "rollup-plugin-string";
 
 const createOutputConfig = (path) => [
   {
@@ -13,6 +14,9 @@ const createOutputConfig = (path) => [
 
 const plugins = [
   external(),
+  string({
+    include: '**/*.txt'
+  }),
   postcss({
     extract: false,
     modules: false,

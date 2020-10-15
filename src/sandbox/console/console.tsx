@@ -10,7 +10,7 @@ import {
 import { AutoScroll } from '../auto-scroll'
 import classes from './console.module.css'
 
-interface ConsoleProps {
+export interface ConsoleProps {
   open: boolean
   logs: Log[]
   className?: string

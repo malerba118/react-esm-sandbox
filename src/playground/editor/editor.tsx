@@ -1,10 +1,10 @@
 import React, { useRef, useEffect, forwardRef } from 'react'
 import { Controlled as Codemirror } from 'react-codemirror2'
-import { Editor as CodeMirrorEditor } from 'codemirror'
+import { Editor as CodeMirrorEditor, EditorConfiguration } from 'codemirror'
 import classnames from 'classnames'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/mode/jsx/jsx.js'
-import 'codemirror/lib/codemirror.css'
+import 'codemirror/mode/css/css.js'
 import 'codemirror/theme/dracula.css'
 import classes from './editor.module.css'
 
@@ -20,11 +20,22 @@ interface EditorProps {
   className?: string
   highlight?: Highlight
   tabSize?: number
+  mode?: EditorConfiguration['mode']
+  lineNumbers?: boolean
 }
 
 export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
   (
-    { value, onChange, theme = 'dracula', className, highlight, tabSize = 2 },
+    {
+      value,
+      onChange,
+      theme = 'dracula',
+      className,
+      highlight,
+      tabSize = 2,
+      lineNumbers,
+      mode
+    },
     ref
   ) => {
     const editorRef = useRef<CodeMirrorEditor>()
@@ -53,11 +64,6 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
 
     const classNames = classnames(classes.root, className)
 
-    // const handleResize = ({ height, width }: any) => {
-    //   editorRef.current?.setSize(height, width)
-    //   editorRef.current?.refresh()
-    // }
-
     return (
       <Codemirror
         className={classNames}
@@ -69,16 +75,17 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
           }
           editorRef.current = editor
           editor.setSize('100%', '100%')
+          // Hacky, but needed to get editor
+          // to size properly after mount
+          setTimeout(() => {
+            editor.refresh()
+          }, 0)
         }}
         options={{
           theme,
-          mode: {
-            name: 'jsx',
-            base: { name: 'javascript', typescript: true }
-          },
-          lineNumbers: true,
-          tabSize,
-          viewportMargin: Infinity
+          mode,
+          lineNumbers,
+          tabSize
         }}
         value={value}
         onBeforeChange={(_, __, val) => onChange(val)}
