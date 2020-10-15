@@ -4,6 +4,7 @@ import { SourceFile } from '../../interpreter'
 import { Editor, Highlight } from '../editor'
 import { Editor as CodeMirrorEditor } from 'codemirror'
 import { getFileExtension } from '../../utils/url'
+import { useThemeColors } from '../../utils/hooks'
 import classes from './editor-group.module.css'
 
 const getModeByExtension = (extension: string) => {
@@ -54,6 +55,7 @@ interface HeaderComponentProps {
   active: string
   files: SourceFile[]
   onActiveChange?: (path: string) => void
+  theme?: string
 }
 
 type HeaderComponent = ComponentType<HeaderComponentProps>
@@ -61,19 +63,25 @@ type HeaderComponent = ComponentType<HeaderComponentProps>
 const DefaultHeaderComponent: FC<HeaderComponentProps> = ({
   files,
   active,
-  onActiveChange
+  onActiveChange,
+  theme = 'dracula'
 }) => {
+  const colors = useThemeColors(theme)
+  const styles = {
+    header: { background: colors.background, color: colors.foreground },
+    headerOverlay: { background: colors.overlay }
+  }
   return (
-    <div className={classes.header}>
-      <div className={classes.headerOverlay}></div>
+    <div className={classes.header} style={styles.header}>
+      <div className={classes.headerOverlay} style={styles.headerOverlay}></div>
       <div className={classes.tabs}>
         {files.map((file) => (
           <button
             key={file.path}
-            className={classnames(
-              classes.tab,
-              active === file.path ? classes.activeTab : classes.inactiveTab
-            )}
+            className={classes.tab}
+            style={{
+              background: active === file.path ? colors.background : 'none'
+            }}
             onClick={() => onActiveChange?.(file.path)}
           >
             {file.path}

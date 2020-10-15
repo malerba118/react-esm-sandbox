@@ -9,17 +9,19 @@ import {
 } from 'react-icons/md'
 import { AutoScroll } from '../auto-scroll'
 import classes from './console.module.css'
+import { useThemeColors } from '../../utils/hooks'
+import { isDark } from '../../utils/colors'
 
 export interface ConsoleProps {
   open: boolean
   logs: Log[]
   className?: string
-  variant?: 'light' | 'dark'
   onToggle?: (open: boolean) => void
   onClear?: () => void
+  theme?: string
 }
 
-const styles = {
+const consoleStyles = {
   BASE_BACKGROUND_COLOR: 'none',
   BASE_FONT_SIZE: '.9rem',
   LOG_ERROR_BACKGROUND: 'rgba(255,0,0,.1)',
@@ -31,16 +33,15 @@ export const Console: FC<ConsoleProps> = ({
   open,
   logs,
   className = '',
-  variant = 'dark',
   onToggle,
-  onClear
+  onClear,
+  theme = 'dracula'
 }) => {
   const [stickToBottom, setStickToBottom] = useState(true)
 
   const rootClasses = classnames(
     classes.root,
     open ? classes.open : classes.closed,
-    variant === 'dark' ? classes.dark : classes.light,
     className
   )
 
@@ -55,16 +56,25 @@ export const Console: FC<ConsoleProps> = ({
     }
   }
 
+  const colors = useThemeColors(theme)
+
+  const styles = {
+    root: { background: colors.background },
+    header: { background: colors.background, color: colors.foreground },
+    toggle: { background: colors.overlay }
+  }
+
   return (
     <>
       <div className={classes.headerPlaceholder}></div>
-      <div className={rootClasses}>
-        <div className={classes.header}>
+      <div className={rootClasses} style={styles.root}>
+        <div className={classes.header} style={styles.header}>
           <button
             className={classes.toggleButton}
             onClick={() => onToggle?.(!open)}
             title='Toggle Console'
             aria-label='Toggle Console'
+            style={styles.toggle}
           >
             <span className={classes.label}>Console</span>
             <div className={classes.icons}>
@@ -87,7 +97,11 @@ export const Console: FC<ConsoleProps> = ({
           </button>
         </div>
         <div onScroll={handleScroll} className={consoleFeedClasses}>
-          <ConsoleFeed styles={styles} logs={logs as any} variant={variant} />
+          <ConsoleFeed
+            styles={consoleStyles}
+            logs={logs as any}
+            variant={isDark(colors.background) ? 'dark' : 'light'}
+          />
           {stickToBottom && <AutoScroll />}
         </div>
       </div>

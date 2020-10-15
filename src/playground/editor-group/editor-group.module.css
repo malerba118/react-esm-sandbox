@@ -26,8 +26,6 @@
 .header {
     position: relative;
     height: 2rem;
-    background-color: var(--esm-sandbox-background-color);
-    color: var(--esm-sandbox-color);
     overflow: auto;
 }
 
@@ -37,7 +35,6 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: var(--esm-sandbox-overlay-color)
 }
 
 .tabs {
@@ -52,17 +49,7 @@
     composes: button from '../../global.css';
     height: 100%;
     padding: 0px .5rem;
-}
-
-.activeTab {
-    background-color: var(--esm-sandbox-background-color);
     position: relative;
-    z-index: 1;
-}
-
-.inactiveTab {
-    background: none;
-    z-index: 1;
 }
 
 .hide {

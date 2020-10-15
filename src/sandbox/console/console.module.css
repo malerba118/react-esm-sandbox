@@ -17,14 +17,6 @@
     position: relative;
 }
 
-.dark {
-    background-color: var(--esm-sandbox-background-color, rgb(36, 36, 36));
-}
-
-.light {
-    background-color: var(--esm-sandbox-background-color, white);
-}
-
 .open {
     height: 100%;
 }
@@ -35,8 +27,6 @@
 
 .header {
     display: flex;
-    background-color:rgba(255,255,255,.05);
-    color: var(--esm-sandbox-color, rgb(36, 36, 36));
     align-items: center;
     height: 1.5rem;
 }

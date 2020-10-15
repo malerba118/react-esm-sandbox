@@ -1,14 +1,7 @@
-import React, {
-  useRef,
-  useCallback,
-  useEffect,
-  useState,
-  useLayoutEffect
-} from 'react'
+import React, { useRef, useCallback, useEffect, useState } from 'react'
 import classnames from 'classnames'
 import { Sandbox, SandboxProps } from '../sandbox'
 import { EditorGroup, EditorGroupProps } from './editor-group'
-import { getThemeColors, isDark } from './colors'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
@@ -54,27 +47,6 @@ export const Playground = ({
     []
   )
 
-  const { background, foreground } = getThemeColors(theme)
-
-  useLayoutEffect(() => {
-    document.documentElement.style.setProperty(
-      '--esm-sandbox-background-color',
-      background
-    )
-    document.documentElement.style.setProperty(
-      '--esm-sandbox-color',
-      foreground
-    )
-    document.documentElement.style.setProperty(
-      '--esm-sandbox-overlay-color',
-      isDark(background) ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)'
-    )
-    document.documentElement.style.setProperty(
-      '--esm-sandbox-focus-color',
-      isDark(background) ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)'
-    )
-  }, [background, foreground])
-
   useEffect(() => {
     requestInterpreterUpdate(files)
   }, [files])
@@ -110,7 +82,7 @@ export const Playground = ({
           onError={onError}
           onLog={onLog}
           transforms={transforms}
-          variant={isDark(background) ? 'dark' : 'light'}
+          theme={theme}
           components={components}
         />
       </div>

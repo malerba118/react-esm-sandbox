@@ -26,7 +26,7 @@ export interface SandboxProps extends InterpreterProps {
     error?: ErrorComponent | null
     console?: ConsoleComponent | null
   }
-  variant?: 'light' | 'dark'
+  theme?: string
 }
 
 const DefaultLoadingComponent: FC<{}> = () => {
@@ -61,7 +61,7 @@ export const Sandbox = forwardRef(
       onLoad,
       onError,
       components,
-      variant = 'dark',
+      theme = 'dracula',
       ...otherProps
     }: SandboxProps,
     ref
@@ -136,7 +136,7 @@ export const Sandbox = forwardRef(
             onToggle={setConsoleOpen}
             onClear={clearConsole}
             logs={logs}
-            variant={variant}
+            theme={theme}
           />
         )}
       </div>
