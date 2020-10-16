@@ -48,4 +48,8 @@ export default [{
   input: 'src/transforms/index.ts',
   output: createOutputConfig('dist/transforms/index.js'),
   plugins
+},{
+  input: 'src/utils/index.ts',
+  output: createOutputConfig('dist/utils/index.js'),
+  plugins
 }]

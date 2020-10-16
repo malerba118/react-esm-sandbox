@@ -163,6 +163,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
             active={active}
             onActiveChange={onActiveChange}
             files={files}
+            theme={theme}
           />
         )}
       </div>

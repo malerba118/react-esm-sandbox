@@ -1,9 +1,13 @@
-type ThemeColors = {
+export type ThemeColors = {
   background: string
   foreground: string
+  overlay: string
 }
 
-const themeColors: Record<string, ThemeColors> = {
+const themeColorsMap: Record<
+  string,
+  { background: string; foreground: string }
+> = {
   dracula: {
     background: '#282a36',
     foreground: '#f8f8f2'
@@ -11,11 +15,21 @@ const themeColors: Record<string, ThemeColors> = {
   'base16-light': {
     background: '#f5f5f5',
     foreground: '#202020'
+  },
+  seti: {
+    background: '#151718',
+    foreground: '#CFD2D1'
   }
 }
 
-export const getThemeColors = (theme: string) => {
-  return themeColors[theme]
+export const getThemeColors = (theme: string): ThemeColors => {
+  const colors = themeColorsMap[theme]
+  return {
+    ...colors,
+    overlay: isDark(colors.background)
+      ? 'rgba(255,255,255,.05)'
+      : 'rgba(0,0,0,.05)'
+  }
 }
 
 export const isDark = (color: string) => {

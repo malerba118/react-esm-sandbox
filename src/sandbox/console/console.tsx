@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, CSSProperties } from 'react'
 import classnames from 'classnames'
 import { Log } from '../../interpreter'
 import { Console as ConsoleFeed } from 'console-feed'
@@ -19,6 +19,7 @@ export interface ConsoleProps {
   onToggle?: (open: boolean) => void
   onClear?: () => void
   theme?: string
+  style?: CSSProperties
 }
 
 const consoleStyles = {
@@ -35,7 +36,8 @@ export const Console: FC<ConsoleProps> = ({
   className = '',
   onToggle,
   onClear,
-  theme = 'dracula'
+  theme = 'dracula',
+  style
 }) => {
   const [stickToBottom, setStickToBottom] = useState(true)
 
@@ -67,7 +69,7 @@ export const Console: FC<ConsoleProps> = ({
   return (
     <>
       <div className={classes.headerPlaceholder}></div>
-      <div className={rootClasses} style={styles.root}>
+      <div className={rootClasses} style={{ ...styles.root, ...style }}>
         <div className={classes.header} style={styles.header}>
           <button
             className={classes.toggleButton}

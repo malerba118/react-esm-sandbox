@@ -1,4 +1,11 @@
-import React, { useState, forwardRef, ComponentType, FC } from 'react'
+import React, {
+  useState,
+  forwardRef,
+  ComponentType,
+  FC,
+  CSSProperties
+} from 'react'
+import classnames from 'classnames'
 import { Interpreter, InterpreterProps, Log } from '../interpreter'
 import { Spinner } from './spinner'
 import { Console as DefaultConsoleComponent, ConsoleProps } from './console'
@@ -14,11 +21,27 @@ enum Status {
 interface ErrorComponentProps {
   error: Error
   onClose: () => void
+  theme: string
+  style?: CSSProperties
+  className?: string
 }
 
-type LoadingComponent = ComponentType<{}>
+interface LoadingComponentProps {
+  theme: string
+  style?: CSSProperties
+  className?: string
+}
+
+type LoadingComponent = ComponentType<LoadingComponentProps>
 type ErrorComponent = ComponentType<ErrorComponentProps>
 type ConsoleComponent = ComponentType<ConsoleProps>
+
+export interface SandboxStyles {
+  interpreter?: CSSProperties
+  loading?: CSSProperties
+  error?: CSSProperties
+  console?: CSSProperties
+}
 
 export interface SandboxProps extends InterpreterProps {
   components?: {
@@ -27,19 +50,31 @@ export interface SandboxProps extends InterpreterProps {
     console?: ConsoleComponent | null
   }
   theme?: string
+  styles?: SandboxStyles
 }
 
-const DefaultLoadingComponent: FC<{}> = () => {
+const DefaultLoadingComponent: FC<LoadingComponentProps> = ({
+  style,
+  className
+}) => {
+  const rootClasses = classnames(classes.loadingContainer, className)
   return (
-    <div className={classes.loadingContainer}>
+    <div className={rootClasses} style={style}>
       <Spinner />
     </div>
   )
 }
 
-const DefaultErrorComponent: FC<ErrorComponentProps> = ({ error, onClose }) => {
+const DefaultErrorComponent: FC<ErrorComponentProps> = ({
+  error,
+  onClose,
+  className,
+  style
+}) => {
+  const rootClasses = classnames(classes.errorContainer, className)
+
   return (
-    <div className={classes.errorContainer}>
+    <div className={rootClasses} style={style}>
       <button className={classes.closeButton} onClick={onClose}>
         <MdClose />
       </button>
@@ -62,6 +97,7 @@ export const Sandbox = forwardRef(
       onError,
       components,
       theme = 'dracula',
+      styles,
       ...otherProps
     }: SandboxProps,
     ref
@@ -114,15 +150,18 @@ export const Sandbox = forwardRef(
           onLoad={handleLoad}
           onError={handleError}
           className={classes.interpreter}
+          style={styles?.interpreter}
         />
         {status === Status.Loading && LoadingComponent && (
           <div className={classes.overlay}>
-            <LoadingComponent />
+            <LoadingComponent theme={theme} style={styles?.loading} />
           </div>
         )}
         {status === Status.Errored && ErrorComponent && error && (
           <div className={classes.overlay}>
             <ErrorComponent
+              theme={theme}
+              style={styles?.error}
               error={error}
               onClose={() => {
                 setError(null)
@@ -132,6 +171,7 @@ export const Sandbox = forwardRef(
         )}
         {ConsoleComponent && (
           <ConsoleComponent
+            style={styles?.console}
             open={consoleOpen}
             onToggle={setConsoleOpen}
             onClear={clearConsole}

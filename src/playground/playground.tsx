@@ -6,15 +6,23 @@ import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
 export interface PlaygroundProps
-  extends Omit<SandboxProps, 'components'>,
-    Omit<EditorGroupProps, 'components'> {
+  extends Omit<SandboxProps, 'components' | 'styles'>,
+    Omit<EditorGroupProps, 'components' | 'styles'> {
   layout?: PlaygroundLayout
-  components?: SandboxProps['components'] & EditorGroupProps['components']
+  components?: {
+    sandbox?: SandboxProps['components']
+    editorGroup?: EditorGroupProps['components']
+  }
+  styles?: PlaygroundStyles
 }
 
 export enum PlaygroundLayout {
   Horizontal = 'horizontal',
   Vertical = 'vertical'
+}
+
+export interface PlaygroundStyles {
+  sandbox?: SandboxProps['styles']
 }
 
 export const Playground = ({
@@ -34,6 +42,7 @@ export const Playground = ({
   layout = PlaygroundLayout.Vertical,
   focusOnActivation,
   components,
+  styles,
   editorOptions = () => undefined
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
@@ -67,7 +76,7 @@ export const Playground = ({
           editorOptions={editorOptions}
           theme={theme}
           focusOnActivation={focusOnActivation}
-          components={components}
+          components={components?.editorGroup}
         />
       </div>
       <div className={classes.interpreterContainer}>
@@ -83,7 +92,8 @@ export const Playground = ({
           onLog={onLog}
           transforms={transforms}
           theme={theme}
-          components={components}
+          components={components?.sandbox}
+          styles={styles?.sandbox}
         />
       </div>
     </div>

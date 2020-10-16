@@ -9,8 +9,8 @@
     width: 100%;
     height: 100%;
     border-radius: 50%;
-    background-color: #111;
-    opacity: 0.6;
+    background: currentColor;
+    opacity: .6;
     position: absolute;
     top: 0;
     left: 0;

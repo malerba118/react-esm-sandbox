@@ -33,5 +33,7 @@ code {
 }
 
 .inline-editor {
-  height: 300px !important;
+  height: 320px !important;
+  border-radius: 8px;
+  overflow: hidden;
 }

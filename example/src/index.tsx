@@ -12,7 +12,9 @@ const customTheme = extendTheme({
     initialColorMode: 'light'
   },
   fonts: {
-    body: `"Fira Code", system-ui, sans-serif`
+    body: `"Fira Code", system-ui, sans-serif`,
+    heading: '"Fira Code"',
+    code: '"Fira Code"'
   },
   colors: {
     white: '#f0f3f7',

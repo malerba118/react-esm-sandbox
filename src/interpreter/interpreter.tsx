@@ -5,7 +5,8 @@ import React, {
   useMemo,
   useCallback,
   useImperativeHandle,
-  forwardRef
+  forwardRef,
+  CSSProperties
 } from 'react'
 import { v4 as uuid } from 'uuid'
 import classnames from 'classnames'
@@ -34,6 +35,7 @@ export interface InterpreterProps {
   onLog?: (log: Log) => void
   transforms?: Record<string, Transform>
   className?: string
+  style?: CSSProperties
 }
 
 const importsFromFiles = (files: TranspiledFile[], baseUrl: string) => {
@@ -200,7 +202,8 @@ export const Interpreter = forwardRef(
       onError,
       onLog,
       className,
-      transforms = {}
+      transforms = {},
+      style
     }: InterpreterProps,
     ref
   ) => {
@@ -297,6 +300,7 @@ export const Interpreter = forwardRef(
         ref={inputRef}
         key={key}
         className={rootClasses}
+        style={style}
         srcDoc={builtDoc}
       />
     )

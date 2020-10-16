@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { Box, Stack, Heading, Text } from '@chakra-ui/core'
 import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/dracula.css'
+// import 'codemirror/theme/dracula.css'
+import 'codemirror/theme/seti.css'
 import {
   Playground,
   SkypackImportMap,
@@ -10,7 +11,8 @@ import {
   CssTransform,
   Highlight,
   EditorGroup,
-  PlaygroundLayout
+  PlaygroundLayout,
+  useThemeColors
 } from 'react-esm-sandbox'
 
 const importMap = SkypackImportMap({
@@ -22,6 +24,7 @@ const importMap = SkypackImportMap({
 const transforms = {
   jsx: BabelTypescriptTransform(),
   ts: BabelTypescriptTransform(),
+  js: BabelTypescriptTransform(),
   css: CssTransform()
 }
 
@@ -39,6 +42,7 @@ const highlightExample: FileHighlight = {
 }
 
 const App = () => {
+  const [theme] = useState('seti')
   const [files, setFiles] = useState([
     {
       path: 'index.jsx',
@@ -141,7 +145,6 @@ body {
 .image-container {
   height: 100%;
   width: 400px;
-  box-shadow: 5px 5px 40px 5px rgba(0, 0, 0, 0.4);
 }
 
 .image {
@@ -149,12 +152,14 @@ body {
   width: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 8px;
 }
 `
     }
   ])
   const [active, setActive] = useState('index.jsx')
   const [highlight, setHighlight] = useState<FileHighlight | null>(null)
+  const colors = useThemeColors(theme)
 
   const updateFile = (file: SourceFile) => {
     setFiles((prev) =>
@@ -195,6 +200,7 @@ body {
             editing this file and see what happens.
           </Text>
           <EditorGroup
+            theme={theme}
             className='inline-editor'
             active={utilsFile.path}
             files={[utilsFile]}
@@ -208,6 +214,7 @@ body {
             performs rotations for us.
           </Text>
           <EditorGroup
+            theme={theme}
             className='inline-editor'
             active={containerFile.path}
             files={[containerFile]}
@@ -251,7 +258,7 @@ body {
           onLog={(data: any) => window.alert(JSON.stringify(data))}
           transforms={transforms}
           onFileChange={updateFile}
-          theme='dracula'
+          theme={theme}
           editorOptions={(file) => {
             const base = {}
             if (highlight && file.path === highlight.filePath) {
@@ -264,6 +271,17 @@ body {
           }}
           layout={PlaygroundLayout.Vertical}
           focusOnActivation={false}
+          styles={{
+            sandbox: {
+              interpreter: {
+                background: colors.background,
+                borderTop: `3px solid ${colors.overlay}`
+              },
+              loading: {
+                color: colors.foreground
+              }
+            }
+          }}
         />
       </Box>
     </>
