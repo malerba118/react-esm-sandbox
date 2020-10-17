@@ -58,14 +58,14 @@ const App = () => {
       path: 'index.jsx',
       contents: `import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
-import InteractiveContainer from "./components/InteractiveContainer.jsx";
+import InteractiveContainer from "./InteractiveContainer.jsx";
 import useData from "./useData.js";
 import "./styles.css";
 
 const transition = { type: 'spring', damping: 50, stiffness: 250 }
 
 function App() {
-  const scale = useData()
+  const scale = useData();
 
   return (
     <InteractiveContainer animate={{ scale, transition }} className="image-container">
@@ -88,7 +88,7 @@ ReactDOM.render(
 `
     },
     {
-      path: 'components/InteractiveContainer.jsx',
+      path: 'InteractiveContainer.jsx',
       contents: `import React from "react";
 import { motion, useSpring } from "framer-motion";
 import { getRelativeMousePosition } from "../utils.js";
@@ -213,7 +213,7 @@ body {
 
   const utilsFile = files.find((f) => f.path === 'utils.js') as SourceFile
   const containerFile = files.find(
-    (f) => f.path === 'components/InteractiveContainer.jsx'
+    (f) => f.path === 'InteractiveContainer.jsx'
   ) as SourceFile
 
   return (
