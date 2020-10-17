@@ -43,6 +43,7 @@ export const Playground = ({
   focusOnActivation,
   components,
   styles,
+  data,
   editorOptions = () => undefined
 }: PlaygroundProps) => {
   const interpreterRef = useRef<any>(null)
@@ -94,6 +95,7 @@ export const Playground = ({
           theme={theme}
           components={components?.sandbox}
           styles={styles?.sandbox}
+          data={data}
         />
       </div>
     </div>

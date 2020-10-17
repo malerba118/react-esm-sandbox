@@ -36,6 +36,7 @@ export interface InterpreterProps {
   transforms?: Record<string, Transform>
   className?: string
   style?: CSSProperties
+  data?: any
 }
 
 const importsFromFiles = (files: TranspiledFile[], baseUrl: string) => {
@@ -109,29 +110,30 @@ const buildDocument = ({
 }: BuildDocumentParams): string => {
   return (
     `<script>
-  const postMessage = ({type, payload}) => {
-    window.parent.postMessage(
-      { 
-        interpreterId: '${interpreterId}',
-        type,
-        payload
-      }, 
-      '*'
-    )
-  }
-
-  const createConsoleProxy = (method, fn) => {
-    return (...args) => {
-      postMessage({
-        type: 'log',
-        payload: {
-          method,
-          data: args
+    window.__esm_sandbox__ = {
+      postMessage({type, payload}) {
+        window.parent.postMessage(
+          { 
+            interpreterId: '${interpreterId}',
+            type,
+            payload
+          }, 
+          '*'
+        )
+      },
+      createConsoleProxy(method, fn) {
+        return (...args) => {
+          this.postMessage({
+            type: 'log',
+            payload: {
+              method,
+              data: args
+            }
+          })
+          fn(...args)
         }
-      })
-      fn(...args)
+      }
     }
-  }
 
   const _debug = console.debug,
         _log = console.log,
@@ -140,15 +142,15 @@ const buildDocument = ({
         _error = console.error
         _table = console.table
 
-  console.debug = createConsoleProxy('debug', _debug)
-  console.log = createConsoleProxy('log', _log)
-  console.info = createConsoleProxy('info', _info)
-  console.warn = createConsoleProxy('warn', _warn)
-  console.error = createConsoleProxy('error', _error)
-  console.table = createConsoleProxy('table', _table)
+  console.debug = __esm_sandbox__.createConsoleProxy('debug', _debug)
+  console.log = __esm_sandbox__.createConsoleProxy('log', _log)
+  console.info = __esm_sandbox__.createConsoleProxy('info', _info)
+  console.warn = __esm_sandbox__.createConsoleProxy('warn', _warn)
+  console.error = __esm_sandbox__.createConsoleProxy('error', _error)
+  console.table = __esm_sandbox__.createConsoleProxy('table', _table)
 
   window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-    postMessage({
+    __esm_sandbox__.postMessage({
       type: 'error',
       payload: new Error(errorMsg)
     });
@@ -160,17 +162,17 @@ const buildDocument = ({
 <script defer src="${esmShimsUrl}"></script>
 <script type="importmap-shim" src="${importMapUrl}"></script>
 <script data-alias="${baseUrl}" type="module-shim">
-  postMessage({
+__esm_sandbox__.postMessage({
     type: 'loading',
   })
   import("${entrypointUrl}")
       .then(() => {
-        postMessage({
+        __esm_sandbox__.postMessage({
           type: 'loaded',
         })
       })
       .catch((err) => {
-        postMessage({
+        __esm_sandbox__.postMessage({
           type: 'error',
           payload: err
         })
@@ -203,7 +205,8 @@ export const Interpreter = forwardRef(
       onLog,
       className,
       transforms = {},
-      style
+      style,
+      data
     }: InterpreterProps,
     ref
   ) => {
@@ -214,7 +217,7 @@ export const Interpreter = forwardRef(
     >({})
     const prevSourceFilesMapRef = useRef<Record<string, SourceFile>>({})
     const [key, setKey] = useState(0)
-    const inputRef = useRef(null)
+    const inputRef = useRef<HTMLIFrameElement | null>(null)
 
     const incrementKey = useCallback(() => {
       setKey((prev) => prev + 1)
@@ -264,6 +267,10 @@ export const Interpreter = forwardRef(
           onError?.(err)
         })
     }, [files])
+
+    useEffect(() => {
+      inputRef.current?.contentWindow?.postMessage(data, '*')
+    }, [data])
 
     const _importMap = useMemo(() => {
       return {

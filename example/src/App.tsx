@@ -1,5 +1,15 @@
 import React, { useState } from 'react'
-import { Box, Stack, Heading, Text } from '@chakra-ui/core'
+import {
+  Box,
+  Stack,
+  Heading,
+  Text,
+  Slider,
+  SliderTrack,
+  SliderFilledTrack,
+  SliderThumb,
+  FormLabel
+} from '@chakra-ui/core'
 import 'codemirror/lib/codemirror.css'
 // import 'codemirror/theme/dracula.css'
 import 'codemirror/theme/seti.css'
@@ -35,7 +45,7 @@ interface FileHighlight {
 
 const highlightExample: FileHighlight = {
   highlight: {
-    lines: [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+    lines: [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
     className: 'highlight'
   },
   filePath: 'index.jsx'
@@ -46,14 +56,19 @@ const App = () => {
   const [files, setFiles] = useState([
     {
       path: 'index.jsx',
-      contents: `import React from "react";
+      contents: `import React, { useEffect } from "react";
 import ReactDOM from "react-dom";
 import InteractiveContainer from "./components/InteractiveContainer.jsx";
+import useData from "./useData.js";
 import "./styles.css";
 
+const transition = { type: 'spring', damping: 50, stiffness: 250 }
+
 function App() {
+  const scale = useData()
+
   return (
-    <InteractiveContainer className="image-container">
+    <InteractiveContainer animate={{ scale, transition }} className="image-container">
       <img
         className="image"
         src="https://picsum.photos/id/66/900/600"
@@ -124,6 +139,29 @@ export default function InteractiveContainer({ style, ...otherProps }) {
 `
     },
     {
+      path: 'useData.js',
+      contents: `import { useState, useEffect } from 'react';
+
+const useData = () => {
+  const [state, setState] = useState();
+
+  useEffect(() => {
+    const listener = (event) => {
+      setState(event.data)
+    };
+    window.addEventListener('message', listener)
+    return () => {
+      window.removeEventListener('message', listener)
+    }
+  }, []);
+  
+  return state;
+};
+
+export default useData;
+`
+    },
+    {
       path: 'styles.css',
       contents: `html,
 body,
@@ -159,6 +197,7 @@ body {
   ])
   const [active, setActive] = useState('index.jsx')
   const [highlight, setHighlight] = useState<FileHighlight | null>(null)
+  const [scale, setScale] = useState<number>(1)
   const colors = useThemeColors(theme)
 
   const updateFile = (file: SourceFile) => {
@@ -240,6 +279,25 @@ body {
             </span>
             .
           </Text>
+          <Text size='sm'>
+            Another neat thing about react-esm-sandbox is that you can
+            communicate with the interpreter in real time. This slider is hooked
+            up to control the scale of the image in the interpreter.
+          </Text>
+          <FormLabel>Image Scale</FormLabel>
+          <Slider
+            colorScheme='blue'
+            defaultValue={scale}
+            onChange={setScale}
+            min={0.25}
+            max={2.25}
+            step={0.1}
+          >
+            <SliderTrack>
+              <SliderFilledTrack />
+            </SliderTrack>
+            <SliderThumb bg='blue.600' />
+          </Slider>
         </Stack>
       </Box>
       <Box position='fixed' w='45%' top={0} right={0} bottom={0}>
@@ -282,6 +340,7 @@ body {
               }
             }
           }}
+          data={scale}
         />
       </Box>
     </>

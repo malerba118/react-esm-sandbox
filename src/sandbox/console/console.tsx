@@ -71,7 +71,9 @@ export const Console: FC<ConsoleProps> = ({
       <div className={classes.headerPlaceholder}></div>
       <div className={rootClasses} style={{ ...styles.root, ...style }}>
         <div className={classes.header} style={styles.header}>
-          <button
+          <div
+            tabIndex={0}
+            role='button'
             className={classes.toggleButton}
             onClick={() => onToggle?.(!open)}
             title='Toggle Console'
@@ -96,7 +98,7 @@ export const Console: FC<ConsoleProps> = ({
                 {open ? <CollapseIcon /> : <ExpandIcon />}
               </span>
             </div>
-          </button>
+          </div>
         </div>
         <div onScroll={handleScroll} className={consoleFeedClasses}>
           <ConsoleFeed
