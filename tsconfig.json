@@ -18,6 +18,6 @@
     "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "example/public/es-module-shims.js"],
-  "exclude": ["node_modules", "dist", "example"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "example", "src/stories"]
 }

@@ -28,7 +28,7 @@ export interface InterpreterProps {
   doc?: string
   files: SourceFile[]
   entrypoint: string
-  importMap: ImportMap
+  importMap?: ImportMap
   onLoading?: () => void
   onLoad?: () => void
   onError?: (error: Error) => void
@@ -276,7 +276,7 @@ export const Interpreter = forwardRef(
       return {
         ...importMap,
         imports: {
-          ...importMap.imports,
+          ...importMap?.imports,
           ...importsFromFiles(Object.values(transpiledFilesMap), baseUrl)
         }
       }

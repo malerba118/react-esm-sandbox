@@ -23,6 +23,7 @@
     background: rgba(0,0,0,.9);
     color: white;
     overflow: auto;
+    box-sizing: border-box;
 }
 
 .errorText {

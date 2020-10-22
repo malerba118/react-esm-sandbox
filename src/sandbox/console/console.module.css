@@ -13,7 +13,7 @@
 }
 
 .headerPlaceholder {
-    height: 1.5rem;
+    height: 2rem;
     position: relative;
 }
 
@@ -22,13 +22,13 @@
 }
 
 .closed {
-    height: 1.5rem;
+    height: 2rem;
 }
 
 .header {
     display: flex;
     align-items: center;
-    height: 1.5rem;
+    height: 2rem;
 }
 
 .content {
@@ -58,12 +58,16 @@
 
 .clearButton {
     composes: button from '../../global.css';
-    height: 1.5rem;
+    height: 2rem;
     padding: 0 .25rem;
+    display: flex;
+    align-items: center;
 }
 
 .toggleIcon {
     padding: 0 .25rem;
+    display: flex;
+    align-items: center;
 }
 
 .hide {

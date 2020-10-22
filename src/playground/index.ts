@@ -1,3 +1,3 @@
 export * from './playground'
-export { Highlight, Editor } from './editor'
-export { EditorGroup } from './editor-group'
+export { Editor, Highlight } from './editor'
+export { EditorGroup, GetEditorOptions } from './editor-group'

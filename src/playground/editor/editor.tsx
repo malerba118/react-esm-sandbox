@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, forwardRef } from 'react'
-import { Controlled as Codemirror } from 'react-codemirror2'
-import { Editor as CodeMirrorEditor, EditorConfiguration } from 'codemirror'
-import classnames from 'classnames'
+import 'codemirror/lib/codemirror.css'
 import 'codemirror/mode/javascript/javascript.js'
 import 'codemirror/mode/jsx/jsx.js'
 import 'codemirror/mode/css/css.js'
 import 'codemirror/theme/dracula.css'
+import { Controlled as Codemirror } from 'react-codemirror2'
+import { Editor as CodeMirrorEditor, EditorConfiguration } from 'codemirror'
+import classnames from 'classnames'
 import classes from './editor.module.css'
 
 export interface Highlight {
@@ -22,6 +23,7 @@ interface EditorProps {
   tabSize?: number
   mode?: EditorConfiguration['mode']
   lineNumbers?: boolean
+  readOnly?: boolean
 }
 
 export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
@@ -34,7 +36,8 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
       highlight,
       tabSize = 2,
       lineNumbers,
-      mode
+      mode,
+      readOnly
     },
     ref
   ) => {
@@ -85,7 +88,8 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
           theme,
           mode,
           lineNumbers,
-          tabSize
+          tabSize,
+          readOnly
         }}
         value={value}
         onBeforeChange={(_, __, val) => onChange(val)}

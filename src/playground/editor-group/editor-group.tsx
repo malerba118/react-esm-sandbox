@@ -1,4 +1,10 @@
-import React, { useRef, useEffect, useMemo, FC, ComponentType } from 'react'
+import React, {
+  useRef,
+  useLayoutEffect,
+  useMemo,
+  FC,
+  ComponentType
+} from 'react'
 import classnames from 'classnames'
 import { SourceFile } from '../../interpreter'
 import { Editor, Highlight } from '../editor'
@@ -96,9 +102,10 @@ interface EditorOptions {
   highlight?: Highlight
   tabSize?: number
   lineNumbers?: boolean
+  readOnly?: boolean
 }
 
-type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
+export type GetEditorOptions = (file: SourceFile) => EditorOptions | undefined
 
 export interface EditorGroupProps {
   active: string
@@ -137,7 +144,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
     ...components
   }
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (focusOnActivation) {
       editors.getEditor(active)?.focus()
     }
@@ -154,6 +161,8 @@ export const EditorGroup: FC<EditorGroupProps> = ({
   }
 
   const rootClasses = classnames(className, classes.root)
+
+  console.log('heree')
 
   return (
     <div className={rootClasses}>
