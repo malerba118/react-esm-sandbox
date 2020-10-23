@@ -7,6 +7,7 @@ import 'codemirror/theme/dracula.css'
 import { Controlled as Codemirror } from 'react-codemirror2'
 import { Editor as CodeMirrorEditor, EditorConfiguration } from 'codemirror'
 import classnames from 'classnames'
+import { assignRef } from '../../utils/refs'
 import classes from './editor.module.css'
 
 export interface Highlight {
@@ -71,11 +72,7 @@ export const Editor = forwardRef<CodeMirrorEditor, EditorProps>(
       <Codemirror
         className={classNames}
         editorDidMount={(editor) => {
-          if (typeof ref === 'function') {
-            ref(editor)
-          } else if (!!ref) {
-            ref.current = editor
-          }
+          assignRef(ref, editor)
           editorRef.current = editor
           editor.setSize('100%', '100%')
           // Hacky, but needed to get editor

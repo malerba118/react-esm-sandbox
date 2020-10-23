@@ -6,7 +6,12 @@ import React, {
   CSSProperties
 } from 'react'
 import classnames from 'classnames'
-import { Interpreter, InterpreterProps, Log } from '../interpreter'
+import {
+  Interpreter,
+  InterpreterProps,
+  Log,
+  InterpreterHandle
+} from '../interpreter'
 import { Spinner } from './spinner'
 import { Console as DefaultConsoleComponent, ConsoleProps } from './console'
 import { MdClose } from 'react-icons/md'
@@ -89,7 +94,9 @@ const defaultComponents = {
   console: DefaultConsoleComponent
 }
 
-export const Sandbox = forwardRef(
+export type SandboxHandle = InterpreterHandle
+
+export const Sandbox = forwardRef<SandboxHandle, SandboxProps>(
   (
     {
       onLoading,

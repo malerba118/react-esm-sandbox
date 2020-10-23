@@ -6,9 +6,9 @@ import React, {
   useCallback,
   useImperativeHandle,
   forwardRef,
-  CSSProperties
+  CSSProperties,
+  MutableRefObject
 } from 'react'
-import { v4 as uuid } from 'uuid'
 import classnames from 'classnames'
 import {
   jsonToDataUrl,
@@ -16,6 +16,7 @@ import {
   getFileExtension,
   jsToDataUrl
 } from '../utils/url'
+import { v4 as uuid } from '../utils/uuid'
 import { keyBy } from '../utils/key-by'
 import { useConstant } from '../utils/hooks'
 import { SourceFile, TranspiledFile, ImportMap, Log, Transform } from '../types'
@@ -192,7 +193,12 @@ const defaultDocument = `<!DOCTYPE html>
     </body>
 </html>`
 
-export const Interpreter = forwardRef(
+export type InterpreterHandle = {
+  execute: () => void
+  iframeRef: MutableRefObject<HTMLIFrameElement | null>
+}
+
+export const Interpreter = forwardRef<InterpreterHandle, InterpreterProps>(
   (
     {
       doc = defaultDocument,
@@ -210,8 +216,10 @@ export const Interpreter = forwardRef(
     }: InterpreterProps,
     ref
   ) => {
-    const interpreterId = useConstant(uuid())
-    const baseUrl = useConstant(resolveUrl(window.location.origin, entrypoint))
+    const interpreterId = useConstant(() => uuid())
+    const baseUrl = useConstant(() =>
+      resolveUrl(window.location.origin, entrypoint)
+    )
     const [transpiledFilesMap, setTranspiledFilesMap] = useState<
       Record<string, TranspiledFile>
     >({})
@@ -228,9 +236,10 @@ export const Interpreter = forwardRef(
       () => ({
         execute: () => {
           incrementKey()
-        }
+        },
+        iframeRef: inputRef
       }),
-      [inputRef]
+      [inputRef, incrementKey]
     )
 
     useEffect(() => {

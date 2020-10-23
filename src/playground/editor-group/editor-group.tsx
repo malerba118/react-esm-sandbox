@@ -114,6 +114,7 @@ export interface EditorGroupProps {
   onActiveChange?: (path: string) => void
   theme?: string
   editorOptions?: GetEditorOptions
+  onEditorHandle?: (path: string, editor: CodeMirrorEditor | null) => void
   focusOnActivation?: boolean
   className?: string
   components?: {
@@ -133,6 +134,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
   focusOnActivation = true,
   theme,
   editorOptions = () => undefined,
+  onEditorHandle,
   className,
   components
 }) => {
@@ -162,8 +164,6 @@ export const EditorGroup: FC<EditorGroupProps> = ({
 
   const rootClasses = classnames(className, classes.root)
 
-  console.log('heree')
-
   return (
     <div className={rootClasses}>
       <div className={classes.headerContainer}>
@@ -188,6 +188,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
             <Editor
               ref={(editor) => {
                 editors.setEditor(file.path, editor)
+                onEditorHandle?.(file.path, editor)
               }}
               key={file.path}
               className={classnames(
