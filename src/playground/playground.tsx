@@ -1,21 +1,21 @@
 import React, { useRef, useCallback, useEffect, useState } from 'react'
 import classnames from 'classnames'
-import { Sandbox, SandboxProps, SandboxHandle } from '../sandbox'
+import { Sandbox, SandboxProps } from '../sandbox'
 import { EditorGroup, EditorGroupProps } from './editor-group'
 import debounce from 'lodash.debounce'
 import classes from './playground.module.css'
 
 export interface PlaygroundProps
-  extends Omit<SandboxProps, 'components' | 'styles'>,
-    Omit<EditorGroupProps, 'components' | 'styles' | 'onEditorHandle'> {
+  extends Omit<SandboxProps, 'components' | 'styles' | 'classes' | 'handles'>,
+    Omit<EditorGroupProps, 'components' | 'styles' | 'handles' | 'classes'> {
   layout?: PlaygroundLayout
   components?: {
     sandbox?: SandboxProps['components']
     editorGroup?: EditorGroupProps['components']
   }
   handles?: {
-    sandbox?: (handle: SandboxHandle | null) => void
-    editor?: EditorGroupProps['onEditorHandle']
+    sandbox?: SandboxProps['handles']
+    editorGroup?: EditorGroupProps['handles']
   }
   styles?: PlaygroundStyles
 }
@@ -27,6 +27,12 @@ export enum PlaygroundLayout {
 
 export interface PlaygroundStyles {
   sandbox?: SandboxProps['styles']
+  editorGroup?: EditorGroupProps['styles']
+}
+
+export interface PlaygroundClasses {
+  sandbox?: SandboxProps['classes']
+  editorGroup?: EditorGroupProps['classes']
 }
 
 export const Playground = ({
@@ -83,14 +89,17 @@ export const Playground = ({
           theme={theme}
           focusOnActivation={focusOnActivation}
           components={components?.editorGroup}
-          onEditorHandle={handles?.editor}
+          handles={handles?.editorGroup}
         />
       </div>
       <div className={classes.interpreterContainer}>
         <Sandbox
-          ref={(handle) => {
-            interpreterRef.current = handle
-            handles?.sandbox?.(handle)
+          handles={{
+            ...handles,
+            interpreter: (handle) => {
+              interpreterRef.current = handle
+              handles?.sandbox?.interpreter?.(handle)
+            }
           }}
           doc={doc}
           files={interpreterFiles}

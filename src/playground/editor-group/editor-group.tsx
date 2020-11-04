@@ -3,7 +3,8 @@ import React, {
   useLayoutEffect,
   useMemo,
   FC,
-  ComponentType
+  ComponentType,
+  CSSProperties
 } from 'react'
 import classnames from 'classnames'
 import { SourceFile } from '../../interpreter'
@@ -11,7 +12,7 @@ import { Editor, Highlight } from '../editor'
 import { Editor as CodeMirrorEditor } from 'codemirror'
 import { getFileExtension } from '../../utils/url'
 import { useThemeColors } from '../../utils/hooks'
-import classes from './editor-group.module.css'
+import _classes from './editor-group.module.css'
 
 const getModeByExtension = (extension: string) => {
   const modes = {
@@ -57,34 +58,55 @@ const useEditors = () => {
   )
 }
 
-interface HeaderComponentProps {
+export interface EditorGroupStyles {
+  header?: CSSProperties
+}
+
+export interface EditorGroupClasses {
+  header?: string
+  editor?: string
+}
+
+export interface HeaderComponentProps {
   active: string
   files: SourceFile[]
   onActiveChange?: (path: string) => void
   theme?: string
+  className?: string
+  style?: CSSProperties
 }
 
-type HeaderComponent = ComponentType<HeaderComponentProps>
+export type HeaderComponent = ComponentType<HeaderComponentProps>
 
 const DefaultHeaderComponent: FC<HeaderComponentProps> = ({
   files,
   active,
   onActiveChange,
-  theme = 'dracula'
+  theme = 'dracula',
+  style,
+  className
 }) => {
   const colors = useThemeColors(theme)
-  const styles = {
-    header: { background: colors.background, color: colors.foreground },
+  const _styles = {
+    header: {
+      background: colors.background,
+      color: colors.foreground,
+      ...style
+    },
     headerOverlay: { background: colors.overlay }
   }
+  const rootClasses = classnames(_classes.header, className)
   return (
-    <div className={classes.header} style={styles.header}>
-      <div className={classes.headerOverlay} style={styles.headerOverlay}></div>
-      <div className={classes.tabs}>
+    <div className={rootClasses} style={_styles.header}>
+      <div
+        className={_classes.headerOverlay}
+        style={_styles.headerOverlay}
+      ></div>
+      <div className={_classes.tabs}>
         {files.map((file) => (
           <button
             key={file.path}
-            className={classes.tab}
+            className={_classes.tab}
             style={{
               background: active === file.path ? colors.background : 'none'
             }}
@@ -114,11 +136,16 @@ export interface EditorGroupProps {
   onActiveChange?: (path: string) => void
   theme?: string
   editorOptions?: GetEditorOptions
-  onEditorHandle?: (path: string, editor: CodeMirrorEditor | null) => void
   focusOnActivation?: boolean
   className?: string
+  classes?: EditorGroupClasses
+  styles?: EditorGroupStyles
   components?: {
     header?: HeaderComponent | null
+  }
+  handles?: {
+    root: (el: HTMLDivElement | null) => void
+    editor: (path: string, editor: CodeMirrorEditor | null) => void
   }
 }
 
@@ -134,9 +161,11 @@ export const EditorGroup: FC<EditorGroupProps> = ({
   focusOnActivation = true,
   theme,
   editorOptions = () => undefined,
-  onEditorHandle,
+  handles,
   className,
-  components
+  components,
+  classes,
+  styles
 }) => {
   const editors = useEditors()
   const activeFile = files.find((file) => file.path === active)
@@ -162,13 +191,15 @@ export const EditorGroup: FC<EditorGroupProps> = ({
     }
   }
 
-  const rootClasses = classnames(className, classes.root)
+  const rootClasses = classnames(className, _classes.root)
 
   return (
-    <div className={rootClasses}>
-      <div className={classes.headerContainer}>
+    <div ref={(el) => handles?.root?.(el)} className={rootClasses}>
+      <div className={_classes.headerContainer}>
         {HeaderComponent && (
           <HeaderComponent
+            className={classes?.header}
+            style={styles?.header}
             active={active}
             onActiveChange={onActiveChange}
             files={files}
@@ -176,7 +207,7 @@ export const EditorGroup: FC<EditorGroupProps> = ({
           />
         )}
       </div>
-      <div className={classes.editorContainer}>
+      <div className={_classes.editorContainer}>
         {files.map((file) => {
           const baseEditorOptions = getEditorBaseOptions(file)
           const providedEditorOptions = editorOptions(file)
@@ -188,12 +219,13 @@ export const EditorGroup: FC<EditorGroupProps> = ({
             <Editor
               ref={(editor) => {
                 editors.setEditor(file.path, editor)
-                onEditorHandle?.(file.path, editor)
+                handles?.editor?.(file.path, editor)
               }}
               key={file.path}
               className={classnames(
-                classes.editor,
-                activeFile?.path !== file.path && classes.hide
+                _classes.editor,
+                activeFile?.path !== file.path && _classes.hide,
+                classes?.editor
               )}
               value={file.contents ?? ''}
               onChange={handleChange}
