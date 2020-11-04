@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 // also exported from '@storybook/react' if you can deal with breaking changes in 6.1
 import { Story, Meta } from '@storybook/react/types-6-0'
+import { action } from '@storybook/addon-actions'
 
 import { SourceFile } from '../../dist/interpreter'
 import {
@@ -56,6 +57,10 @@ const Template: Story = (args) => {
       entrypoint='index.js'
       onFileChange={updateFile}
       editorOptions={editorOptions}
+      onLog={args.onLog}
+      onLoading={args.onLoading}
+      onLoad={args.onLoad}
+      onError={args.onError}
     />
   )
 }
@@ -73,4 +78,13 @@ export const ReadOnly = Template.bind({})
 ReadOnly.args = {
   layout: PlaygroundLayout.Vertical,
   readOnly: true
+}
+
+export const Callbacks = Template.bind({})
+Callbacks.args = {
+  layout: PlaygroundLayout.Vertical,
+  onLog: action('log'),
+  onLoading: action('loading'),
+  onLoad: action('load'),
+  onError: action('error')
 }
