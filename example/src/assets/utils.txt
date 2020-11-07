@@ -1,0 +1,15 @@
+export const getRelativeMousePosition = (e) => {
+  const el = e.currentTarget;
+  const mousePosition = {
+    x: e.pageX,
+    y: e.pageY
+  };
+  const elementCenter = {
+    x: el.offsetLeft + el.offsetWidth / 2,
+    y: el.offsetTop + el.offsetHeight / 2
+  };
+  return {
+    x: mousePosition.x - elementCenter.x,
+    y: mousePosition.y - elementCenter.y
+  };
+};

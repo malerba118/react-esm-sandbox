@@ -1,0 +1,19 @@
+import { useState, useEffect } from 'react';
+
+const useData = () => {
+  const [state, setState] = useState();
+
+  useEffect(() => {
+    const listener = (event) => {
+      setState(event.data)
+    };
+    window.addEventListener('message', listener)
+    return () => {
+      window.removeEventListener('message', listener)
+    }
+  }, []);
+  
+  return state;
+};
+
+export default useData;

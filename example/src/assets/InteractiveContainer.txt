@@ -1,0 +1,28 @@
+import React from "react";
+import { motion, useSpring } from "framer-motion";
+import { getRelativeMousePosition } from "../utils.js";
+
+export default function InteractiveContainer({ style, ...otherProps }) {
+  const x = useSpring(0, { stiffness: 1000, damping: 50 });
+  const y = useSpring(0, { stiffness: 1000, damping: 50 });
+
+  const handleMouseMove = (e) => {
+    const pos = getRelativeMousePosition(e);
+    x.set(pos.x / 25);
+    y.set(-pos.y / 25);
+  };
+
+  const handleMouseLeave = (e) => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      {...otherProps}
+      style={{ rotateY: x, rotateX: y, perspective: 500, ...style }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+    />
+  );
+}      

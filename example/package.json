@@ -19,6 +19,7 @@
     "@types/react": "file:../node_modules/@types/react",
     "@types/react-dom": "file:../node_modules/@types/react-dom",
     "codemirror": "^5.58.1",
+    "framer-motion": "^2.9.4",
     "react": "file:../node_modules/react",
     "react-codemirror2": "^7.2.1",
     "react-dom": "file:../node_modules/react-dom",
@@ -27,7 +28,8 @@
     "typescript": "file:../node_modules/typescript"
   },
   "devDependencies": {
-    "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
+    "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
+    "raw-loader": "^4.0.2"
   },
   "eslintConfig": {
     "extends": "react-app"

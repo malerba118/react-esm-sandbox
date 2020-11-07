@@ -1,0 +1,29 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  padding: 36px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.image-container {
+  height: 100%;
+  width: 400px;
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+}

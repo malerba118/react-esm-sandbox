@@ -1,0 +1,29 @@
+import React, { useEffect } from "react";
+import ReactDOM from "react-dom";
+import InteractiveContainer from "./InteractiveContainer.jsx";
+import useData from "./useData.js";
+import "./styles.css";
+
+const transition = { type: 'spring', damping: 50, stiffness: 250 }
+
+function App() {
+  const scale = useData();
+
+  return (
+    <InteractiveContainer animate={{ scale, transition }} className="image-container">
+      <img
+        className="image"
+        src="https://picsum.photos/id/66/900/600"
+        alt="kitten"
+      />
+    </InteractiveContainer>
+  );
+}
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+  rootElement
+);
