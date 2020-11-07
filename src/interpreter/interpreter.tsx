@@ -26,17 +26,53 @@ import classes from './interpreter.module.css'
 const esmShimsUrl = jsToDataUrl(esmShims)
 
 export interface InterpreterProps {
+  /**
+   * An html document to interpret
+   */
   doc?: string
+  /**
+   * A list of files from which to import
+   */
   files: SourceFile[]
+  /**
+   * A path of one of the files provided, to be treated as the entrypoint
+   */
   entrypoint: string
+  /**
+   * An import map, to specify importable dependencies
+   */
   importMap?: ImportMap
+  /**
+   * A callback run when the interpreter begins loading resources
+   */
   onLoading?: () => void
+  /**
+   * A callback run when the interpreter finishes loading resources
+   */
   onLoad?: () => void
+  /**
+   * A callback run when the interpreter failes to load resources
+   */
   onError?: (error: Error) => void
+  /**
+   * A callback run whenever a console method is called inside of the interpreter
+   */
   onLog?: (log: Log) => void
+  /**
+   * A map of file extensions to code transforms (most often these will be used to transpile to vanilla js)
+   */
   transforms?: Record<string, Transform>
+  /**
+   * A css class to apply to the iframe that interprets the code
+   */
   className?: string
+  /**
+   * Inline styles to apply to the iframe that interprets the code
+   */
   style?: CSSProperties
+  /**
+   * Arbitrary data that will be posted to the iframe contentWindow
+   */
   data?: any
 }
 

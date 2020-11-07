@@ -25,7 +25,8 @@
     "predeploy": "cd example && npm install && npm run build",
     "deploy": "gh-pages -d example/build",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "generate-docs": "typedoc"
   },
   "peerDependencies": {
     "codemirror": "^5.0.0",
@@ -40,10 +41,10 @@
     "@storybook/addon-essentials": "^6.0.26",
     "@storybook/addon-links": "^6.0.26",
     "@storybook/react": "^6.0.26",
+    "@testing-library/dom": "^7.26.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
-    "@testing-library/dom": "^7.26.0",
     "@types/babel__standalone": "^7.1.2",
     "@types/classnames": "^2.2.10",
     "@types/codemirror": "0.0.98",
@@ -86,6 +87,9 @@
     "rollup-plugin-string": "^3.0.0",
     "rollup-plugin-typescript2": "^0.27.3",
     "storybook-css-modules-preset": "^1.0.2",
+    "typedoc": "^0.19.2",
+    "typedoc-plugin-no-inherit": "^1.2.0",
+    "typedoc-plugin-nojekyll": "^1.0.1",
     "typescript": "^3.7.5",
     "webpack": "4.42.0"
   },
