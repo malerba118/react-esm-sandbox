@@ -8,6 +8,11 @@ Readme is under construction, see example dir for now if you're curious about us
 
 This is a library for interpreting sets of interdependent es modules directly in the browser. It also supports tanspilation of typescript/jsx via babel-standalone.
 
+## Sneak Peek
+![react-esm-sandbox](https://user-images.githubusercontent.com/5760059/98432969-cd7b8f00-2088-11eb-9a6a-48b8040f3d2a.gif)
+
+produced by the following code:
+
 ```tsx
 import React, { useState } from 'react'
 import {
@@ -22,18 +27,30 @@ import {
   FormLabel
 } from '@chakra-ui/core'
 import 'codemirror/lib/codemirror.css'
+// import 'codemirror/theme/dracula.css'
 import 'codemirror/theme/seti.css'
 import {
   Playground,
   SkypackImportMap,
   SourceFile,
-  BabelTypescriptTransform,
+  TypescriptTransform,
+  JavascriptTransform,
   CssTransform,
   Highlight,
   EditorGroup,
   PlaygroundLayout,
   useThemeColors
 } from 'react-esm-sandbox'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import indexJsx from '!!raw-loader!./assets/index.txt'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import interactiveContainerJsx from '!!raw-loader!./assets/InteractiveContainer.txt'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import utilsJs from '!!raw-loader!./assets/utils.txt'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import useDataJs from '!!raw-loader!./assets/useData.txt'
+// eslint-disable-next-line import/no-webpack-loader-syntax
+import stylesCss from '!!raw-loader!./assets/styles.txt'
 
 const importMap = SkypackImportMap({
   react: 'latest',
@@ -42,9 +59,9 @@ const importMap = SkypackImportMap({
 })
 
 const transforms = {
-  jsx: BabelTypescriptTransform(),
-  ts: BabelTypescriptTransform(),
-  js: BabelTypescriptTransform(),
+  jsx: JavascriptTransform(),
+  ts: TypescriptTransform(),
+  js: JavascriptTransform(),
   css: CssTransform()
 }
 
@@ -66,143 +83,23 @@ const App = () => {
   const [files, setFiles] = useState([
     {
       path: 'index.jsx',
-      contents: `import React, { useEffect } from "react";
-import ReactDOM from "react-dom";
-import InteractiveContainer from "./InteractiveContainer.jsx";
-import useData from "./useData.js";
-import "./styles.css";
-
-const transition = { type: 'spring', damping: 50, stiffness: 250 }
-
-function App() {
-  const scale = useData();
-
-  return (
-    <InteractiveContainer animate={{ scale, transition }} className="image-container">
-      <img
-        className="image"
-        src="https://picsum.photos/id/66/900/600"
-        alt="kitten"
-      />
-    </InteractiveContainer>
-  );
-}
-
-const rootElement = document.getElementById("root");
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  rootElement
-); 
-`
+      contents: indexJsx
     },
     {
       path: 'InteractiveContainer.jsx',
-      contents: `import React from "react";
-import { motion, useSpring } from "framer-motion";
-import { getRelativeMousePosition } from "../utils.js";
-
-export default function InteractiveContainer({ style, ...otherProps }) {
-  const x = useSpring(0, { stiffness: 1000, damping: 50 });
-  const y = useSpring(0, { stiffness: 1000, damping: 50 });
-
-  const handleMouseMove = (e) => {
-    const pos = getRelativeMousePosition(e);
-    x.set(pos.x / 25);
-    y.set(-pos.y / 25);
-  };
-
-  const handleMouseLeave = (e) => {
-    x.set(0);
-    y.set(0);
-  };
-
-  return (
-    <motion.div
-      {...otherProps}
-      style={{ rotateY: x, rotateX: y, perspective: 500, ...style }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-    />
-  );
-}      
-`
+      contents: interactiveContainerJsx
     },
     {
       path: 'utils.js',
-      contents: `export const getRelativeMousePosition = (e) => {
-  const el = e.currentTarget;
-  const mousePosition = {
-    x: e.pageX,
-    y: e.pageY
-  };
-  const elementCenter = {
-    x: el.offsetLeft + el.offsetWidth / 2,
-    y: el.offsetTop + el.offsetHeight / 2
-  };
-  return {
-    x: mousePosition.x - elementCenter.x,
-    y: mousePosition.y - elementCenter.y
-  };
-};
-`
+      contents: utilsJs
     },
     {
       path: 'useData.js',
-      contents: `import { useState, useEffect } from 'react';
-
-const useData = () => {
-  const [state, setState] = useState();
-
-  useEffect(() => {
-    const listener = (event) => {
-      setState(event.data)
-    };
-    window.addEventListener('message', listener)
-    return () => {
-      window.removeEventListener('message', listener)
-    }
-  }, []);
-  
-  return state;
-};
-
-export default useData;
-`
+      contents: useDataJs
     },
     {
       path: 'styles.css',
-      contents: `html,
-body,
-#root {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-}
-
-#root {
-  padding: 36px;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;
-}
-
-.image-container {
-  height: 100%;
-  width: 400px;
-}
-
-.image {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-  display: block;
-  border-radius: 8px;
-}
-`
+      contents: stylesCss
     }
   ])
   const [active, setActive] = useState('index.jsx')
@@ -299,8 +196,8 @@ body {
             colorScheme='blue'
             defaultValue={scale}
             onChange={setScale}
-            min={0.25}
-            max={2.25}
+            min={0.5}
+            max={1.5}
             step={0.1}
           >
             <SliderTrack>
