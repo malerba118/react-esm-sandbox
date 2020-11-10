@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useState,
+  useMemo,
   CSSProperties
 } from 'react'
 import classnames from 'classnames'
@@ -10,11 +11,13 @@ import { Sandbox, SandboxProps } from '../sandbox'
 import { EditorGroup, EditorGroupProps } from './editor-group'
 import debounce from 'lodash.debounce'
 import _classes from './playground.module.css'
+import { SourceFile } from '../types'
 
 export interface PlaygroundProps
   extends Omit<SandboxProps, 'components' | 'styles' | 'classes' | 'handles'>,
     Omit<EditorGroupProps, 'components' | 'styles' | 'handles' | 'classes'> {
   layout?: PlaygroundLayout
+  tabs?: string[]
   components?: {
     sandbox?: SandboxProps['components']
     editorGroup?: EditorGroupProps['components']
@@ -43,6 +46,7 @@ export enum PlaygroundLayout {
 export const Playground = ({
   doc,
   files,
+  tabs,
   onFileChange,
   entrypoint,
   importMap,
@@ -86,11 +90,22 @@ export const Playground = ({
     classes?.root
   )
 
+  const editorGroupFiles = useMemo(() => {
+    const array: SourceFile[] = []
+    tabs?.forEach((tab) => {
+      const file = files.find((file) => file.path === tab)
+      if (file) {
+        array.push(file)
+      }
+    })
+    return array.length ? array : files
+  }, [files, tabs])
+
   return (
     <div className={rootClasses} style={styles?.root}>
       <div className={_classes.editorGroupContainer}>
         <EditorGroup
-          files={files}
+          files={editorGroupFiles}
           active={active}
           onFileChange={onFileChange}
           onActiveChange={onActiveChange}
