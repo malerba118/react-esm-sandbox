@@ -1,9 +1,15 @@
-import React, { useRef, useCallback, useEffect, useState } from 'react'
+import React, {
+  useRef,
+  useCallback,
+  useEffect,
+  useState,
+  CSSProperties
+} from 'react'
 import classnames from 'classnames'
 import { Sandbox, SandboxProps } from '../sandbox'
 import { EditorGroup, EditorGroupProps } from './editor-group'
 import debounce from 'lodash.debounce'
-import classes from './playground.module.css'
+import _classes from './playground.module.css'
 
 export interface PlaygroundProps
   extends Omit<SandboxProps, 'components' | 'styles' | 'classes' | 'handles'>,
@@ -17,22 +23,21 @@ export interface PlaygroundProps
     sandbox?: SandboxProps['handles']
     editorGroup?: EditorGroupProps['handles']
   }
-  styles?: PlaygroundStyles
+  classes?: {
+    root?: string
+    sandbox?: SandboxProps['classes']
+    editorGroup?: EditorGroupProps['classes']
+  }
+  styles?: {
+    root?: CSSProperties
+    sandbox?: SandboxProps['styles']
+    editorGroup?: EditorGroupProps['styles']
+  }
 }
 
 export enum PlaygroundLayout {
   Horizontal = 'horizontal',
   Vertical = 'vertical'
-}
-
-export interface PlaygroundStyles {
-  sandbox?: SandboxProps['styles']
-  editorGroup?: EditorGroupProps['styles']
-}
-
-export interface PlaygroundClasses {
-  sandbox?: SandboxProps['classes']
-  editorGroup?: EditorGroupProps['classes']
 }
 
 export const Playground = ({
@@ -52,6 +57,7 @@ export const Playground = ({
   layout = PlaygroundLayout.Vertical,
   focusOnActivation,
   components,
+  classes,
   styles,
   data,
   editorOptions = () => undefined,
@@ -73,13 +79,16 @@ export const Playground = ({
   }, [files])
 
   const rootClasses = classnames(
-    classes.root,
-    layout === PlaygroundLayout.Vertical ? classes.vertical : classes.horizontal
+    _classes.root,
+    layout === PlaygroundLayout.Vertical
+      ? _classes.vertical
+      : _classes.horizontal,
+    classes?.root
   )
 
   return (
-    <div className={rootClasses}>
-      <div className={classes.editorGroupContainer}>
+    <div className={rootClasses} style={styles?.root}>
+      <div className={_classes.editorGroupContainer}>
         <EditorGroup
           files={files}
           active={active}
@@ -90,9 +99,11 @@ export const Playground = ({
           focusOnActivation={focusOnActivation}
           components={components?.editorGroup}
           handles={handles?.editorGroup}
+          classes={classes?.editorGroup}
+          styles={styles?.editorGroup}
         />
       </div>
-      <div className={classes.interpreterContainer}>
+      <div className={_classes.interpreterContainer}>
         <Sandbox
           handles={{
             ...handles,
@@ -111,9 +122,10 @@ export const Playground = ({
           onLog={onLog}
           transforms={transforms}
           theme={theme}
-          components={components?.sandbox}
-          styles={styles?.sandbox}
           data={data}
+          components={components?.sandbox}
+          classes={classes?.sandbox}
+          styles={styles?.sandbox}
         />
       </div>
     </div>

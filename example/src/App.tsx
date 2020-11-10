@@ -131,7 +131,9 @@ const App = () => {
           </Text>
           <EditorGroup
             theme={theme}
-            className='inline-editor'
+            classes={{
+              root: 'inline-editor'
+            }}
             active={utilsFile.path}
             files={[utilsFile]}
             onFileChange={(val) => {
@@ -145,7 +147,9 @@ const App = () => {
           </Text>
           <EditorGroup
             theme={theme}
-            className='inline-editor'
+            classes={{
+              root: 'inline-editor'
+            }}
             active={containerFile.path}
             files={[containerFile]}
             onFileChange={(val) => {

@@ -58,15 +58,6 @@ const useEditors = () => {
   )
 }
 
-export interface EditorGroupStyles {
-  header?: CSSProperties
-}
-
-export interface EditorGroupClasses {
-  header?: string
-  editor?: string
-}
-
 export interface HeaderComponentProps {
   active: string
   files: SourceFile[]
@@ -137,9 +128,15 @@ export interface EditorGroupProps {
   theme?: string
   editorOptions?: GetEditorOptions
   focusOnActivation?: boolean
-  className?: string
-  classes?: EditorGroupClasses
-  styles?: EditorGroupStyles
+  classes?: {
+    root?: string
+    header?: string
+    editor?: string
+  }
+  styles?: {
+    root?: CSSProperties
+    header?: CSSProperties
+  }
   components?: {
     header?: HeaderComponent | null
   }
@@ -162,7 +159,6 @@ export const EditorGroup: FC<EditorGroupProps> = ({
   theme,
   editorOptions = () => undefined,
   handles,
-  className,
   components,
   classes,
   styles
@@ -191,10 +187,14 @@ export const EditorGroup: FC<EditorGroupProps> = ({
     }
   }
 
-  const rootClasses = classnames(className, _classes.root)
+  const rootClasses = classnames(classes?.root, _classes.root)
 
   return (
-    <div ref={(el) => handles?.root?.(el)} className={rootClasses}>
+    <div
+      ref={(el) => handles?.root?.(el)}
+      className={rootClasses}
+      style={styles?.root}
+    >
       <div className={_classes.headerContainer}>
         {HeaderComponent && (
           <HeaderComponent
@@ -217,16 +217,20 @@ export const EditorGroup: FC<EditorGroupProps> = ({
           }
           return (
             <Editor
-              ref={(editor) => {
-                editors.setEditor(file.path, editor)
-                handles?.editor?.(file.path, editor)
+              handles={{
+                root: (editor) => {
+                  editors.setEditor(file.path, editor)
+                  handles?.editor?.(file.path, editor)
+                }
               }}
               key={file.path}
-              className={classnames(
-                _classes.editor,
-                activeFile?.path !== file.path && _classes.hide,
-                classes?.editor
-              )}
+              classes={{
+                root: classnames(
+                  _classes.editor,
+                  activeFile?.path !== file.path && _classes.hide,
+                  classes?.editor
+                )
+              }}
               value={file.contents ?? ''}
               onChange={handleChange}
               theme={theme}
