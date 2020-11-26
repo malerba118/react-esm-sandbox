@@ -9,9 +9,12 @@ Readme is under construction, see example dir for now if you're curious about us
 This is a library for interpreting sets of interdependent es modules directly in the browser. It also supports tanspilation of typescript/jsx via babel-standalone.
 
 ## Sneak Peek
+
+[https://malerba118.github.io/react-esm-sandbox/](https://malerba118.github.io/react-esm-sandbox/)
+
 ![react-esm-sandbox](https://user-images.githubusercontent.com/5760059/98432969-cd7b8f00-2088-11eb-9a6a-48b8040f3d2a.gif)
 
-produced by the following code:
+produced by the following [code](https://github.com/malerba118/react-esm-sandbox/blob/master/example/src/App.tsx):
 
 ```tsx
 import React, { useState } from 'react'
